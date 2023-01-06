@@ -1,9 +1,8 @@
 <?php
 
-namespace config;
+namespace Unit;
 
 use Realtyna\MvcCore\Config;
-use WP_UnitTestCase;
 
 class ConfigTest extends \WP_UnitTestCase
 {
