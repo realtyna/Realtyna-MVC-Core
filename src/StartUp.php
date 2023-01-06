@@ -120,12 +120,11 @@ abstract class StartUp
     public function addStyle(
         string $handler,
         string $path,
-        array  $dep = [],
-        bool   $isAdmin = false,
-        bool   $enqueue = true,
+        array $dep = [],
+        bool $isAdmin = false,
+        bool $enqueue = true,
         string $version = null
-    )
-    {
+    ) {
         $this->styles[] = [
             'handler' => $handler,
             'path' => $path,
@@ -149,13 +148,12 @@ abstract class StartUp
     public function addScript(
         string $handler,
         string $path,
-        array  $dep = [],
-        bool   $isAdmin = false,
-        bool   $inFooter = false,
-        bool   $enqueue = true,
+        array $dep = [],
+        bool $isAdmin = false,
+        bool $inFooter = false,
+        bool $enqueue = true,
         string $version = null
-    )
-    {
+    ) {
         $this->scripts[] = [
             'handler' => $handler,
             'path' => $path,
@@ -173,7 +171,7 @@ abstract class StartUp
      * @param $data
      * @return void
      */
-    public function localizeScript($handle, $objectName, $data): void
+    public function addLocalizedScript($handle, $objectName, $data): void
     {
         $this->localizeScripts[$handle][] = [
             'object_name' => $objectName,
@@ -181,6 +179,52 @@ abstract class StartUp
         ];
     }
 
+    private function enqueueScript($script){
+        wp_enqueue_script(
+            $script['handler'],
+            $this->config->get('path.assets.js') . '/' . $script['path'],
+            $script['dep'],
+            $script['version'],
+            $script['in_footer']
+        );
+    }
+
+    private function registerScript($script){
+        wp_register_script(
+            $script['handler'],
+            $this->config->get('path.assets.js') . '/' . $script['path'],
+            $script['dep'],
+            $script['version'],
+            $script['in_footer']
+        );
+    }
+
+    private function localizeScripts($handle, $script){
+        wp_localize_script(
+            $handle,
+            $script['object_name'],
+            $script['data']
+        );
+    }
+
+
+    private function enqueueStyle($style){
+        wp_enqueue_style(
+            $style['handler'],
+            $this->config->get('path.assets.css') . '/' . $style['path'],
+            $style['dep'],
+            $style['version'],
+        );
+    }
+
+    private function registerStyle($style){
+        wp_register_style(
+            $style['handler'],
+            $this->config->get('path.assets.css') . '/' . $style['path'],
+            $style['dep'],
+            $style['version'],
+        );
+    }
 
     public function registerAssets()
     {
@@ -191,29 +235,15 @@ abstract class StartUp
                         'admin_enqueue_scripts',
                         function () use ($script) {
                             if ($script['enqueue']) {
-                                wp_enqueue_script(
-                                    $script['handler'],
-                                    $this->config->get('path.assets.js') . '/' . $script['path'],
-                                    $script['dep'],
-                                    $script['version'],
-                                    $script['in_footer']
-                                );
+                                $this->enqueueScript($script);
                             } else {
-                                wp_register_script(
-                                    $script['handler'],
-                                    $this->config->get('path.assets.js') . '/' . $script['path'],
-                                    $script['dep'],
-                                    $script['version'],
-                                    $script['in_footer']
-                                );
+                                $this->registerScript($script);
                             }
                             if (isset($this->localizeScripts)) {
                                 if ($this->localizeScripts[$script['handler']]) {
-                                    wp_localize_script(
-                                        $script['handler'],
-                                        $this->localizeScripts[$script['handler']]['object_name'],
-                                        $this->localizeScripts[$script['handler']]['data']
-                                    );
+                                    foreach ($this->localizeScripts[$script['handler']] as $localizeScript){
+                                        $this->localizeScripts($script['handler'], $localizeScript);
+                                    }
                                 }
                             }
                         }
@@ -223,29 +253,15 @@ abstract class StartUp
                         'wp_enqueue_scripts',
                         function () use ($script) {
                             if ($script['enqueue']) {
-                                wp_enqueue_script(
-                                    $script['handler'],
-                                    $this->config->get('path.assets.js') . '/' . $script['path'],
-                                    $script['dep'],
-                                    $script['version'],
-                                    $script['in_footer']
-                                );
+                                $this->enqueueScript($script);
                             } else {
-                                wp_register_script(
-                                    $script['handler'],
-                                    $this->config->get('path.assets.js') . '/' . $script['path'],
-                                    $script['dep'],
-                                    $script['version'],
-                                    $script['in_footer']
-                                );
+                                $this->registerScript($script);
                             }
                             if (isset($this->localizeScripts)) {
                                 if ($this->localizeScripts[$script['handler']]) {
-                                    wp_localize_script(
-                                        $script['handler'],
-                                        $this->localizeScripts[$script['handler']]['object_name'],
-                                        $this->localizeScripts[$script['handler']]['data']
-                                    );
+                                    foreach ($this->localizeScripts[$script['handler']] as $localizeScript){
+                                        $this->localizeScripts($script['handler'], $localizeScript);
+                                    }
                                 }
                             }
                         }
@@ -261,19 +277,9 @@ abstract class StartUp
                         'admin_enqueue_scripts',
                         function () use ($style) {
                             if ($style['enqueue']) {
-                                wp_enqueue_style(
-                                    $style['handler'],
-                                    $this->config->get('path.assets.css') . '/' . $style['path'],
-                                    $style['dep'],
-                                    $style['version'],
-                                );
+                                $this->enqueueStyle($style);
                             } else {
-                                wp_register_style(
-                                    $style['handler'],
-                                    $this->config->get('path.assets.css') . '/' . $style['path'],
-                                    $style['dep'],
-                                    $style['version'],
-                                );
+                                $this->registerStyle($style);
                             }
                         }
                     );
@@ -282,19 +288,9 @@ abstract class StartUp
                         'wp_enqueue_scripts',
                         function () use ($style) {
                             if ($style['enqueue']) {
-                                wp_enqueue_style(
-                                    $style['handler'],
-                                    $this->config->get('path.assets.css') . '/' . $style['path'],
-                                    $style['dep'],
-                                    $style['version'],
-                                );
+                                $this->enqueueStyle($style);
                             } else {
-                                wp_register_style(
-                                    $style['handler'],
-                                    $this->config->get('path.assets.css') . '/' . $style['path'],
-                                    $style['dep'],
-                                    $style['version'],
-                                );
+                                $this->registerStyle($style);
                             }
                         }
                     );
