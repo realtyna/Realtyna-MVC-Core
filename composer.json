@@ -15,6 +15,12 @@
         }
     ],
     "require": {
-        "robmorgan/phinx": "^0.13.3"
+        "robmorgan/phinx": "^0.13.3",
+        "illuminate/database": "^8.83"
+    },
+    "config": {
+        "allow-plugins": {
+            "kylekatarnls/update-helper": false
+        }
     }
 }
