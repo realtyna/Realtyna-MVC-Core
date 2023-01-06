@@ -16,7 +16,8 @@
     ],
     "require": {
         "robmorgan/phinx": "^0.13.3",
-        "illuminate/database": "^8.83"
+        "illuminate/database": "^8.83",
+        "firebase/php-jwt": "^6.3"
     },
     "config": {
         "allow-plugins": {
