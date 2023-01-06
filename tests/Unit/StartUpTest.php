@@ -5,7 +5,10 @@ namespace Unit;
 use Realtyna\MvcCore\Config;
 use Realtyna\MvcCore\Exception\InvalidCallbackException;
 use Realtyna\MvcCore\StartUp;
-use Realtyna\MvcCore\Utilities\StubClass;
+use Realtyna\MvcCore\Utilities\FakeAPICController;
+use Realtyna\MvcCore\Utilities\FakeClass;
+use Realtyna\MvcCore\Utilities\FakeComponent;
+use Realtyna\MvcCore\Utilities\FakeController;
 
 class StartUpTest extends \WP_UnitTestCase
 {
@@ -29,7 +32,6 @@ class StartUpTest extends \WP_UnitTestCase
 
         $this->config = new Config($configsArray);
         $this->main = $this->getMockForAbstractClass('Realtyna\MvcCore\StartUp', [$this->config]);
-
     }
 
     public function testStartUpConstructor()
@@ -118,7 +120,6 @@ class StartUpTest extends \WP_UnitTestCase
 
     public function testValidateCallbackMethodWhenCallbackArrayCountNot2()
     {
-
         $this->expectException(InvalidCallbackException::class);
         $this->expectExceptionMessage('Callback array should have 2 item in it.');
 
@@ -131,7 +132,6 @@ class StartUpTest extends \WP_UnitTestCase
 
     public function testValidateCallbackMethodWhenClassNotExists()
     {
-
         $this->expectException(InvalidCallbackException::class);
         $this->expectExceptionMessage('Callback class does not exists');
 
@@ -151,7 +151,7 @@ class StartUpTest extends \WP_UnitTestCase
         $method = $reflection->getMethod('validateCallback');
         $method->setAccessible(true);
 
-        $method->invokeArgs($this->main, [[StubClass::class, 'index']]);
+        $method->invokeArgs($this->main, [[FakeClass::class, 'index']]);
     }
 
     public function testValidateCallbackMethodWhenMethodNotPublic()
@@ -164,19 +164,21 @@ class StartUpTest extends \WP_UnitTestCase
         $method = $reflection->getMethod('validateCallback');
         $method->setAccessible(true);
 
-        $method->invokeArgs($this->main, [[StubClass::class, 'TestMethod']]);
+        $method->invokeArgs($this->main, [[FakeClass::class, 'TestMethod']]);
     }
 
     public function testAddActionMethod()
     {
-        $this->main->addAction('hook_name',
-            [CommentController::class, 'TestMethod'],
+        $this->main->addAction(
+            'hook_name',
+            [FakeController::class, 'TestMethod'],
             25,
-            2);
+            2
+        );
 
         $this->assertContains([
             'hook' => 'hook_name',
-            'callback' => [CommentController::class, 'TestMethod'],
+            'callback' => [FakeController::class, 'TestMethod'],
             'priority' => 25,
             'accepted_args' => 2,
         ], $this->main->actions);
@@ -185,14 +187,16 @@ class StartUpTest extends \WP_UnitTestCase
 
     public function testAddFilterMethod()
     {
-        $this->main->addFilter('hook_name',
-            [CommentController::class, 'TestMethod'],
+        $this->main->addFilter(
+            'hook_name',
+            [FakeController::class, 'TestMethod'],
             25,
-            2);
+            2
+        );
 
         $this->assertContains([
             'hook' => 'hook_name',
-            'callback' => [CommentController::class, 'TestMethod'],
+            'callback' => [FakeController::class, 'TestMethod'],
             'priority' => 25,
             'accepted_args' => 2,
         ], $this->main->filters);
@@ -200,8 +204,8 @@ class StartUpTest extends \WP_UnitTestCase
 
     public function testAddComponentMethod()
     {
-        $this->main->addComponent(SampleComponent::class);
-        $this->assertContains(SampleComponent::class, $this->main->components);
+        $this->main->addComponent(FakeComponent::class);
+        $this->assertContains(FakeComponent::class, $this->main->components);
     }
 
 
@@ -237,7 +241,7 @@ class StartUpTest extends \WP_UnitTestCase
 
     public function testLocalizeScriptMethod()
     {
-        $this->main->localizeScript('realtyna-mvc-js', 'localize_test', [
+        $this->main->addLocalizedScript('realtyna-mvc-js', 'localize_test', [
             'test' => 'test',
             'version' => '1.0.0'
         ]);
@@ -252,7 +256,7 @@ class StartUpTest extends \WP_UnitTestCase
 
     public function testRegisterAssetsMethodWithStyleEnqueuedOnClientSide()
     {
-        $cssFileName = tempnam($this->main->config->get('path.assets.css'), 'test.css');
+        $fileName = $this->createFile($this->main->config->get('path.assets.js') . "/test.css");
 
         $this->main->addStyle('realtyna-mvc-css', 'test.css', [], false, true, '1.00');
         $this->main->registerAssets();
@@ -261,13 +265,13 @@ class StartUpTest extends \WP_UnitTestCase
 
         $this->assertTrue(wp_style_is('realtyna-mvc-css'));
 
-        $this->unlink($cssFileName);
+        $this->unlink($fileName);
         wp_dequeue_style('realtyna-mvc-css');
     }
 
     public function testRegisterAssetsMethodWithStyleRegisteredOnClientSide()
     {
-        $cssFileName = tempnam($this->main->config->get('path.assets.css'), 'test.css');
+        $fileName = $this->createFile($this->main->config->get('path.assets.js') . "/test.css");
 
         $this->main->addStyle('realtyna-mvc-css', 'test.css', [], false, false, '1.00');
         $this->main->registerAssets();
@@ -276,14 +280,14 @@ class StartUpTest extends \WP_UnitTestCase
 
         $this->assertTrue(wp_style_is('realtyna-mvc-css', 'registered'));
 
-        $this->unlink($cssFileName);
+        $this->unlink($fileName);
         wp_dequeue_style('realtyna-mvc-css');
     }
 
 
     public function testRegisterAssetsMethodWithScriptEnqueuedOnClientSide()
     {
-        $jsFileName = tempnam($this->main->config->get('path.assets.js'), 'test.js');
+        $fileName = $this->createFile($this->main->config->get('path.assets.js') . "/test.js");
 
         $this->main->addScript('realtyna-mvc-js', 'test.js', [], false, true, true, '1.00');
         $this->main->registerAssets();
@@ -292,61 +296,164 @@ class StartUpTest extends \WP_UnitTestCase
 
         $this->assertTrue(wp_script_is('realtyna-mvc-js'));
 
-        $this->unlink($jsFileName);
+        $this->unlink($fileName);
         wp_dequeue_script('realtyna-mvc-js');
     }
 
     public function testRegisterAssetsMethodWithScriptRegisteredOnClientSide()
     {
+        $fileName = $this->createFile($this->main->config->get('path.assets.js') . "/test.js");
 
-        $jsFileName = tempnam($this->main->config->get('path.assets.js'), '.js');
-        echo "<pre>";
-        var_dump($jsFileName);
-        echo "</pre>";
-        die();
-        $this->main->addStyle('realtyna-mvc-js', 'test.js', [], false, true, false, '1.00');
+        $this->main->addScript('realtyna-mvc-js', 'test.js', [], false, true, false, '1.00');
         $this->main->registerAssets();
 
         do_action('wp_enqueue_scripts');
 
         $this->assertTrue(wp_script_is('realtyna-mvc-js', 'registered'));
 
-        $this->unlink($jsFileName);
+        $this->unlink($fileName);
         wp_dequeue_script('realtyna-mvc-js');
     }
 
-
-
-    //todo test register scripts and styles
-    //todo test add api
-    //todo test register hooks
-    //todo test register apis
-    //todo test register components
-
-}
-
-
-//Todo try not to define This Class here
-class PostController
-{
-    private function TestMethod()
+    public function testRegisterAssetsMethodWithStyleEnqueuedOnAdminSide()
     {
+        set_current_screen('admin');
+        $fileName = $this->createFile($this->main->config->get('path.assets.js') . "/test.css");
 
+        $this->main->addStyle('realtyna-mvc-css', 'test.css', [], true, true, '1.00');
+        $this->main->registerAssets();
+
+        do_action('admin_enqueue_scripts');
+
+        $this->assertTrue(wp_style_is('realtyna-mvc-css'));
+
+        $this->unlink($fileName);
+        wp_dequeue_style('realtyna-mvc-css');
     }
-}
 
-class CommentController
-{
-    public function TestMethod()
+    public function testRegisterAssetsMethodWithStyleRegisteredOnAdminSide()
     {
+        set_current_screen('admin');
+        $fileName = $this->createFile($this->main->config->get('path.assets.js') . "/test.css");
 
+        $this->main->addStyle('realtyna-mvc-css', 'test.css', [], true, false, '1.00');
+        $this->main->registerAssets();
+
+        do_action('admin_enqueue_scripts');
+
+        $this->assertTrue(wp_style_is('realtyna-mvc-css', 'registered'));
+
+        $this->unlink($fileName);
+        wp_dequeue_style('realtyna-mvc-css');
     }
-}
 
-class SampleComponent
-{
-    public function register()
+
+    public function testRegisterAssetsMethodWithScriptEnqueuedOnAdminSide()
     {
+        set_current_screen('admin');
+        $fileName = $this->createFile($this->main->config->get('path.assets.js') . "/test.js");
 
+        $this->main->addScript('realtyna-mvc-js', 'test.js', [], true, true, true, '1.00');
+        $this->main->registerAssets();
+
+        do_action('admin_enqueue_scripts');
+
+        $this->assertTrue(wp_script_is('realtyna-mvc-js'));
+
+        $this->unlink($fileName);
+        wp_dequeue_script('realtyna-mvc-js');
     }
+
+    public function testRegisterAssetsMethodWithScriptRegisteredOnAdminSide()
+    {
+        set_current_screen('admin');
+        $fileName = $this->createFile($this->main->config->get('path.assets.js') . "/test.js");
+
+        $this->main->addScript('realtyna-mvc-js', 'test.js', [], true, true, false, '1.00');
+        $this->main->registerAssets();
+
+        do_action('admin_enqueue_scripts');
+
+        $this->assertTrue(wp_script_is('realtyna-mvc-js', 'registered'));
+
+        $this->unlink($fileName);
+        wp_dequeue_script('realtyna-mvc-js');
+    }
+
+    //TODO write test for localize scripts
+    public function testAddAPIMethod()
+    {
+        $this->main->addAPI(
+            'v4',
+            'user',
+            FakeClass::class,
+            ['login', 'register'],
+        );
+
+        $this->assertContains('login', $this->main->apis['v4']['user'][FakeClass::class]);
+        $this->assertContains('register', $this->main->apis['v4']['user'][FakeClass::class]);
+    }
+
+    public function testRegisterHooksMethodWithActions()
+    {
+        $this->main->addAction(
+            'init',
+            [FakeController::class, 'TestMethod'],
+            25,
+            2
+        );
+        $this->main->registerHooks();
+
+        $this->assertTrue(has_action('init', [FakeController::class, 'TestMethod']) == 25);
+    }
+
+    public function testRegisterHooksMethodWithFilters()
+    {
+        $this->main->addFilter(
+            'init',
+            [FakeController::class, 'TestMethod'],
+            25,
+            2
+        );
+        $this->main->registerHooks();
+
+        $this->assertTrue(has_filter('init', [FakeController::class, 'TestMethod']) == 25);
+    }
+
+    public function testRegisterAPIsMethod()
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('API class created with version:v4 and baseRoute:user');
+
+        $this->main->addAPI(
+            'v4',
+            'user',
+            FakeAPICController::class,
+            ['register'],
+        );
+
+        $this->main->registerAPIs();
+        $this->main->registerHooks();
+
+        do_action('rest_api_init');
+    }
+
+    public function testRegisterComponentsMethod()
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Component was created.');
+
+        $this->main->addComponent(FakeComponent::class);
+        $this->main->registerComponents();
+    }
+
+    private function createFile($filePath)
+    {
+        $file = fopen($filePath, "w");
+        $txt = "just a test";
+        fwrite($file, $txt);
+
+        return $filePath;
+    }
+
 }
