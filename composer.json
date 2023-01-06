@@ -19,6 +19,9 @@
         "illuminate/database": "^8.83",
         "firebase/php-jwt": "^6.3"
     },
+    "require-dev": {
+        "symfony/var-dumper": "^v5.4.0"
+    },
     "config": {
         "allow-plugins": {
             "kylekatarnls/update-helper": false
