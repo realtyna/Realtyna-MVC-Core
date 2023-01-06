@@ -14,5 +14,7 @@
             "email": "chandler.p@realtyna.net"
         }
     ],
-    "require": {}
+    "require": {
+        "robmorgan/phinx": "^0.13.3"
+    }
 }
