@@ -8,9 +8,6 @@
 /**
  * Sample test case.
  */
-
-use WP_UnitTestCase;
-
 class SampleTest extends WP_UnitTestCase
 {
     /**
