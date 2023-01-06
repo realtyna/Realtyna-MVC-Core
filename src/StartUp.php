@@ -15,6 +15,7 @@ abstract class StartUp
     public array $styles;
     public array $scripts;
     public array $localizeScripts;
+    public array $apis;
 
     public function __construct(Config $config)
     {
@@ -179,7 +180,12 @@ abstract class StartUp
         ];
     }
 
-    private function enqueueScript($script){
+    /**
+     * @param array $script
+     * @return void
+     */
+    private function enqueueScript(array $script)
+    {
         wp_enqueue_script(
             $script['handler'],
             $this->config->get('path.assets.js') . '/' . $script['path'],
@@ -189,7 +195,8 @@ abstract class StartUp
         );
     }
 
-    private function registerScript($script){
+    private function registerScript(array $script)
+    {
         wp_register_script(
             $script['handler'],
             $this->config->get('path.assets.js') . '/' . $script['path'],
@@ -199,7 +206,13 @@ abstract class StartUp
         );
     }
 
-    private function localizeScripts($handle, $script){
+    /**
+     * @param $handle
+     * @param array $script
+     * @return void
+     */
+    private function localizeScripts($handle, array $script)
+    {
         wp_localize_script(
             $handle,
             $script['object_name'],
@@ -208,7 +221,12 @@ abstract class StartUp
     }
 
 
-    private function enqueueStyle($style){
+    /**
+     * @param array $style
+     * @return void
+     */
+    private function enqueueStyle(array $style)
+    {
         wp_enqueue_style(
             $style['handler'],
             $this->config->get('path.assets.css') . '/' . $style['path'],
@@ -217,7 +235,12 @@ abstract class StartUp
         );
     }
 
-    private function registerStyle($style){
+    /**
+     * @param array $style
+     * @return void
+     */
+    private function registerStyle(array $style)
+    {
         wp_register_style(
             $style['handler'],
             $this->config->get('path.assets.css') . '/' . $style['path'],
@@ -226,6 +249,9 @@ abstract class StartUp
         );
     }
 
+    /**
+     * @return void
+     */
     public function registerAssets()
     {
         if (isset($this->scripts)) {
@@ -241,7 +267,7 @@ abstract class StartUp
                             }
                             if (isset($this->localizeScripts)) {
                                 if ($this->localizeScripts[$script['handler']]) {
-                                    foreach ($this->localizeScripts[$script['handler']] as $localizeScript){
+                                    foreach ($this->localizeScripts[$script['handler']] as $localizeScript) {
                                         $this->localizeScripts($script['handler'], $localizeScript);
                                     }
                                 }
@@ -259,7 +285,7 @@ abstract class StartUp
                             }
                             if (isset($this->localizeScripts)) {
                                 if ($this->localizeScripts[$script['handler']]) {
-                                    foreach ($this->localizeScripts[$script['handler']] as $localizeScript){
+                                    foreach ($this->localizeScripts[$script['handler']] as $localizeScript) {
                                         $this->localizeScripts($script['handler'], $localizeScript);
                                     }
                                 }
@@ -298,4 +324,74 @@ abstract class StartUp
             }
         }
     }
+
+    /**
+     * @param string $version
+     * @param string $baseRoute
+     * @param $class
+     * @param array $callbacks
+     * @return void
+     */
+    public function addAPI(string $version, string $baseRoute, $class, array $callbacks)
+    {
+        foreach ($callbacks as $callback) {
+            $this->apis [$version][$baseRoute][$class][] = $callback;
+        }
+    }
+
+    /**
+     * @return void
+     */
+    public function registerHooks(): void
+    {
+        if (isset($this->actions)) {
+            foreach ($this->actions as $action) {
+                add_action($action['hook'], $action['callback'], $action['priority'], $action['accepted_args']);
+            }
+        }
+
+        if (isset($this->filters)) {
+            foreach ($this->filters as $filter) {
+                add_filter($filter['hook'], $filter['callback'], $filter['priority'], $filter['accepted_args']);
+            }
+        }
+    }
+
+    /**
+     * @return void
+     * @throws InvalidCallbackException
+     */
+    public function registerAPIs()
+    {
+        foreach ($this->apis as $version => $baseRoutes) {
+            foreach ($baseRoutes as $baseRoute => $classes) {
+                foreach ($classes as $class => $callbacks) {
+                    foreach ($callbacks as $callback) {
+                        $class = new $class($version, $baseRoute);
+                        $this->addAction('rest_api_init', [$class, $callback]);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @return void
+     */
+    public function registerComponents()
+    {
+        foreach ($this->components as $class) {
+            $service = new $class();
+
+            if (method_exists($service, 'register')) {
+                $service->register();
+            }
+        }
+    }
+
+    public function loadPluginTextDomain(): bool
+    {
+        return load_plugin_textdomain($this->config->get('localize.textdomain'), false, 'assets/langs');
+    }
+
 }

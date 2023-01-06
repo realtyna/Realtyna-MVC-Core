@@ -2,7 +2,9 @@
 
 namespace Realtyna\MvcCore\Utilities;
 
-class StubClass
+use Exception;
+
+class FakeClass
 {
 
 
@@ -10,4 +12,5 @@ class StubClass
     {
         
     }
+
 }
