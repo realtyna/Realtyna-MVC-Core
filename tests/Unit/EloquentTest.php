@@ -3,7 +3,7 @@
 namespace Unit;
 
 use Realtyna\MvcCore\Eloquent;
-use Realtyna\MvcCore\Utilities\FakePostModel;
+use Realtyna\MvcCore\Fake\FakePostModel;
 
 class EloquentTest extends \WP_UnitTestCase
 {

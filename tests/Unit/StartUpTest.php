@@ -5,10 +5,10 @@ namespace Unit;
 use Realtyna\MvcCore\Config;
 use Realtyna\MvcCore\Exception\InvalidCallbackException;
 use Realtyna\MvcCore\StartUp;
-use Realtyna\MvcCore\Utilities\FakeAPICController;
-use Realtyna\MvcCore\Utilities\FakeClass;
-use Realtyna\MvcCore\Utilities\FakeComponent;
-use Realtyna\MvcCore\Utilities\FakeController;
+use Realtyna\MvcCore\Fake\FakeAPICController;
+use Realtyna\MvcCore\Fake\FakeClass;
+use Realtyna\MvcCore\Fake\FakeComponent;
+use Realtyna\MvcCore\Fake\FakeController;
 
 class StartUpTest extends \WP_UnitTestCase
 {

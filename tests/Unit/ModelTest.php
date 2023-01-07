@@ -8,7 +8,7 @@ use Realtyna\MvcCore\Config;
 use Realtyna\MvcCore\Eloquent;
 use Realtyna\MvcCore\Exception\ModelApiException;
 use Realtyna\MvcCore\Model;
-use Realtyna\MvcCore\Utilities\FakePostModel;
+use Realtyna\MvcCore\Fake\FakePostModel;
 use WP_REST_Server;
 
 class ModelTest extends \WP_UnitTestCase
