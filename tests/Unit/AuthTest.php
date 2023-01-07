@@ -22,13 +22,11 @@ class AuthTest extends \WP_UnitTestCase
         $this->config = new Config($configsArray);
         $this->main = $this->getMockForAbstractClass('Realtyna\MvcCore\StartUp', [$this->config]);
         $this->auth = new Auth($this->main);
-
-
-
     }
+
     public function testEncodeMethod()
     {
-        $parameters =[
+        $parameters = [
             12
         ];
         $reflection = new \ReflectionClass(Auth::class);
@@ -41,7 +39,7 @@ class AuthTest extends \WP_UnitTestCase
 
     public function testDecodeMethod()
     {
-        $parameters =[
+        $parameters = [
             12
         ];
         $reflection = new \ReflectionClass(Auth::class);
@@ -50,7 +48,7 @@ class AuthTest extends \WP_UnitTestCase
         $encoded = $method->invokeArgs($this->auth, $parameters);
 
 
-        $parameters =[
+        $parameters = [
             $encoded
         ];
         $reflection = new \ReflectionClass(Auth::class);
@@ -60,11 +58,12 @@ class AuthTest extends \WP_UnitTestCase
 
         $this->assertEquals(12, $decoded->user->userID);
     }
+
     public function testGenerateTokenMethod()
     {
         $token = $this->auth->generateToken(12);
 
-        $parameters =[
+        $parameters = [
             $token
         ];
         $reflection = new \ReflectionClass(Auth::class);
@@ -74,6 +73,7 @@ class AuthTest extends \WP_UnitTestCase
 
         $this->assertEquals(12, $decoded->user->userID);
     }
+
     public function testGetUserMethodWithCorrectToken()
     {
         $userID = $this->factory()->user->create();
