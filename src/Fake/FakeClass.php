@@ -1,6 +1,6 @@
 <?php
 
-namespace Realtyna\MvcCore\Utilities;
+namespace Realtyna\MvcCore\Fake;
 
 use Exception;
 
