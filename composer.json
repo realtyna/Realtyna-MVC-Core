@@ -1,31 +1,32 @@
 {
-    "name": "realtyna/mvc-core",
-    "description": "Core library to create WordPress plugin in MVC design pattern",
-    "type": "library",
-    "license": "LGPL",
-    "autoload": {
-        "psr-4": {
-            "Realtyna\\MvcCore\\": "src/"
-        }
-    },
-    "authors": [
-        {
-            "name": "Chandler P",
-            "email": "chandler.p@realtyna.net"
-        }
-    ],
-    "require": {
-        "robmorgan/phinx": "^0.13.3",
-        "illuminate/database": "^8.83",
-        "firebase/php-jwt": "^6.3"
-    },
-    "require-dev": {
-        "symfony/var-dumper": "^v5.4.0",
-        "yoast/phpunit-polyfills": "^1.0"
-    },
-    "config": {
-        "allow-plugins": {
-            "kylekatarnls/update-helper": false
-        }
+  "name": "realtyna/mvc-core",
+  "description": "Core library to create WordPress plugin in MVC design pattern",
+  "type": "library",
+  "license": "LGPL",
+  "autoload": {
+    "psr-4": {
+      "Realtyna\\MvcCore\\": "src/"
     }
+  },
+  "authors": [
+    {
+      "name": "Chandler P",
+      "email": "chandler.p@realtyna.net"
+    }
+  ],
+  "require": {
+    "robmorgan/phinx": "^0.13.3",
+    "illuminate/database": "^8.83",
+    "firebase/php-jwt": "^6.3",
+    "ext-json": "*"
+  },
+  "require-dev": {
+    "symfony/var-dumper": "^v5.4.0",
+    "yoast/phpunit-polyfills": "^1.0"
+  },
+  "config": {
+    "allow-plugins": {
+      "kylekatarnls/update-helper": false
+    }
+  }
 }
