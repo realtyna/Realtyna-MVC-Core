@@ -3,7 +3,6 @@
 namespace Realtyna\MvcCore;
 
 use Illuminate\Database\Capsule\Manager;
-use Singleton;
 
 class Eloquent
 {
@@ -32,6 +31,10 @@ class Eloquent
         }
     }
 
+    /**
+     * @return Eloquent|null
+     * @since 0.0.1
+     */
     public static function getInstance(): ?Eloquent
     {
         if (self::$instance == null) {

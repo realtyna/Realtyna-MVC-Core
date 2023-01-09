@@ -12,7 +12,18 @@ class View
         $this->main = $main;
     }
 
-    function get( $slug, $name = null, $load = true ) {
+    /**
+     * get a template file
+     * EX: slug = admin/index this will look for index.php inside admin folder
+     * EX: slug = admin/index & name = user this will look for index-user.php inside admin folder
+     * load parameter defines if you want to get location of template or want to
+     * @param $slug
+     * @param $name
+     * @param bool $load
+     * @return false|string
+     * @since 0.0.1
+     */
+    function get( $slug, string $name = null, bool $load = true ) {
         // Execute code for this part
         do_action( 'get_template_part_' . $slug, $slug, $name );
 
@@ -30,7 +41,15 @@ class View
     }
 
 
-    private function locate_template( $template_names, $load = false, $require_once = true ) {
+    /**
+     * locates template file
+     * @param $template_names
+     * @param bool $load
+     * @param bool $require_once
+     * @return false|string
+     * @since 0.0.1
+     */
+    private function locate_template( $template_names, bool $load = false, bool $require_once = true ) {
         // No file found yet
         $located = false;
 
@@ -62,7 +81,7 @@ class View
             }
         }
 
-        if ( ( true == $load ) && ! empty( $located ) ) {
+        if ( $load && ! empty( $located ) ) {
             load_template( $located, $require_once );
         }
 

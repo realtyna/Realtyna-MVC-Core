@@ -93,6 +93,7 @@ abstract class StartUp
      * @param int $accepted_args
      * @return void
      * @throws InvalidCallbackException
+     * @since 0.0.1
      */
     public function addFilter(string $hook, array $callback, int $priority = 10, int $accepted_args = 1)
     {
@@ -103,6 +104,7 @@ abstract class StartUp
     /**
      * @param $component
      * @return void
+     * @since 0.0.1
      */
     public function addComponent($component): void
     {
@@ -117,6 +119,7 @@ abstract class StartUp
      * @param bool $enqueue
      * @param $version
      * @return void
+     * @since 0.0.1
      */
     public function addStyle(
         string $handler,
@@ -145,6 +148,7 @@ abstract class StartUp
      * @param bool $enqueue
      * @param string|null $version
      * @return void
+     * @since 0.0.1
      */
     public function addScript(
         string $handler,
@@ -171,6 +175,7 @@ abstract class StartUp
      * @param $objectName
      * @param $data
      * @return void
+     * @since 0.0.1
      */
     public function addLocalizedScript($handle, $objectName, $data): void
     {
@@ -183,6 +188,7 @@ abstract class StartUp
     /**
      * @param array $script
      * @return void
+     * @since 0.0.1
      */
     private function enqueueScript(array $script)
     {
@@ -210,6 +216,7 @@ abstract class StartUp
      * @param $handle
      * @param array $script
      * @return void
+     * @since 0.0.1
      */
     private function localizeScripts($handle, array $script)
     {
@@ -224,6 +231,7 @@ abstract class StartUp
     /**
      * @param array $style
      * @return void
+     * @since 0.0.1
      */
     private function enqueueStyle(array $style)
     {
@@ -238,6 +246,7 @@ abstract class StartUp
     /**
      * @param array $style
      * @return void
+     * @since 0.0.1
      */
     private function registerStyle(array $style)
     {
@@ -251,6 +260,7 @@ abstract class StartUp
 
     /**
      * @return void
+     * @since 0.0.1
      */
     public function registerAssets()
     {
@@ -331,6 +341,7 @@ abstract class StartUp
      * @param $class
      * @param array $callbacks
      * @return void
+     * @since 0.0.1
      */
     public function addAPI(string $version, string $baseRoute, $class, array $callbacks)
     {
@@ -341,6 +352,7 @@ abstract class StartUp
 
     /**
      * @return void
+     * @since 0.0.1
      */
     public function registerHooks(): void
     {
@@ -360,6 +372,7 @@ abstract class StartUp
     /**
      * @return void
      * @throws InvalidCallbackException
+     * @since 0.0.1
      */
     public function registerAPIs()
     {
@@ -377,6 +390,7 @@ abstract class StartUp
 
     /**
      * @return void
+     * @since 0.0.1
      */
     public function registerComponents()
     {
@@ -389,9 +403,13 @@ abstract class StartUp
         }
     }
 
+    /**
+     * @return bool
+     * @since 0.0.1
+     */
     public function loadPluginTextDomain(): bool
     {
-        return load_plugin_textdomain($this->config->get('localize.textdomain'), false, 'assets/langs');
+        return load_plugin_textdomain($this->config->get('localize.textdomain'), false, $this->config->get('path.langs'));
     }
 
 }

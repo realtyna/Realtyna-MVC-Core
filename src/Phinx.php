@@ -23,8 +23,10 @@ class Phinx
     }
 
     /**
+     * migrate the database
      * @return int
      * @throws ExceptionInterface
+     * @since 0.0.1
      */
     public function migrate(): int
     {
@@ -40,8 +42,10 @@ class Phinx
 
 
     /**
+     * seed the database
      * @return int
      * @throws ExceptionInterface
+     * @since 0.0.1
      */
     public function seed(): int
     {
@@ -56,8 +60,10 @@ class Phinx
     }
 
     /**
+     * rollback all migrations
      * @return int
      * @throws ExceptionInterface
+     * @since 0.0.1
      */
     public function rollback(): int
     {

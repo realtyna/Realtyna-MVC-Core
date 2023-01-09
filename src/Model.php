@@ -32,6 +32,12 @@ class Model extends BaseModel
      */
     public static $apiResponse;
 
+    /**
+     * set route of the api to call
+     * @param string $apiRoute
+     * @return Model
+     * @since 0.0.1
+     */
     public static function api(string $apiRoute): Model
     {
         static::$apiRoute = $apiRoute;
@@ -39,15 +45,17 @@ class Model extends BaseModel
     }
 
     /**
+     * Set method of the API request
+     * acceptable values are = get, post, put, patch, and delete
      * @param $method
      * @return Model
      * @throws ModelApiException
+     * @since 0.0.1
      */
     public static function method($method): Model
     {
-
         $method = strtoupper($method);
-        if(!in_array($method, ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])){
+        if (!in_array($method, ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])) {
             throw new ModelApiException('Entered method is not valid.');
         }
         static::$method = $method;
@@ -55,8 +63,14 @@ class Model extends BaseModel
     }
 
 
-
-    public static function where($key, $value = '')
+    /**
+     * set query params or body params for API request
+     * @param $key
+     * @param string $value
+     * @return Model
+     * @since 0.0.1
+     */
+    public static function where($key, string $value = ''): Model
     {
         if (is_array($key)) {
             foreach ($key as $arrayItemKey => $arrayItemValue) {
@@ -68,50 +82,63 @@ class Model extends BaseModel
         return new static();
     }
 
-    public static function header(array $headers)
+    /**
+     * Set header for an API request
+     * @param array $headers
+     * @return Model
+     * @since 0.0.1
+     */
+    public static function header(array $headers): Model
     {
         static::$headers = $headers;
         return new static();
     }
 
 
+    /**
+     * Send the api request based on methods chained before
+     * @param $return
+     * @return array|static
+     * @since 0.0.1
+     */
     public static function send($return = false)
     {
-        $request = new WP_REST_Request( static::$method, static::$apiRoute );
-        if(static::$method == 'GET'){
-            $request->set_query_params( static::$conditions );
-        }elseif (static::$method == 'POST'){
-            $request->set_body_params( static::$conditions );
+        $request = new WP_REST_Request(static::$method, static::$apiRoute);
+        if (static::$method == 'GET') {
+            $request->set_query_params(static::$conditions);
+        } elseif (static::$method == 'POST') {
+            $request->set_body_params(static::$conditions);
         }
-        $request->set_headers( static::$headers );
+        $request->set_headers(static::$headers);
 
-        $response = rest_do_request( $request );
+        $response = rest_do_request($request);
         $server = rest_get_server();
-        $data = $server->response_to_data( $response, true );
+        $data = $server->response_to_data($response, true);
 
-        if($return){
+        if ($return) {
             return $data;
         }
         static::$apiResponse = $data;
         return new static();
-
     }
 
     /**
+     * Transform api response to Collection or Model Object
      * @return Collection|Model
+     * @since 0.0.1
      */
     public static function toObject()
     {
         $collection = [];
         $data = static::$apiResponse;
 
-        if(count($data) != count($data, COUNT_RECURSIVE)){
-            foreach ($data as $item){
+        if (count($data) != count($data, COUNT_RECURSIVE)) {
+            foreach ($data as $item) {
                 $collection[] = (new static())->fill($item);
             }
             return collect($collection);
         }
-        
+
         return (new static())->fill($data);
     }
 }
