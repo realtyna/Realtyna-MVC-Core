@@ -2,7 +2,6 @@
 /**
  * PHPUnit bootstrap file.
  *
- * @package My_Own_Mvc_Plugin
  */
 require './vendor/autoload.php';
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
