@@ -380,7 +380,7 @@ abstract class StartUp
             foreach ($baseRoutes as $baseRoute => $classes) {
                 foreach ($classes as $class => $callbacks) {
                     foreach ($callbacks as $callback) {
-                        $class = new $class($version, $baseRoute);
+                        $class = new $class($this, $version, $baseRoute);
                         $this->addAction('rest_api_init', [$class, $callback]);
                     }
                 }
