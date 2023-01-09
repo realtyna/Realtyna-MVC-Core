@@ -9,6 +9,7 @@ use Realtyna\MvcCore\Eloquent;
 use Realtyna\MvcCore\Exception\ModelApiException;
 use Realtyna\MvcCore\Model;
 use Realtyna\MvcCore\Fake\FakePostModel;
+use Realtyna\MvcCore\StartUp;
 use WP_REST_Server;
 
 class ModelTest extends \WP_UnitTestCase
@@ -32,9 +33,9 @@ class ModelTest extends \WP_UnitTestCase
         $this->main = $this->getMockForAbstractClass('Realtyna\MvcCore\StartUp', [$this->config]);
 
 
-        $apiController = new class('v4', 'user') {
+        $apiController = new class($this->main, 'v4', 'user') {
 
-            public function __construct(string $version, string $baseRoute)
+            public function __construct(StartUp $main, string $version, string $baseRoute)
             {
                 $this->version = $version;
                 $this->baseRoute = $baseRoute;
