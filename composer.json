@@ -2,7 +2,7 @@
   "name": "realtyna/mvc-core",
   "description": "Core library to create WordPress plugin in MVC design pattern",
   "type": "library",
-  "license": "LGPL",
+  "license": "LGPL-3.0-or-later",
   "autoload": {
     "psr-4": {
       "Realtyna\\MvcCore\\": "src/"
