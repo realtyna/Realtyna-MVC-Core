@@ -5,6 +5,8 @@ namespace Realtyna\MvcCore;
 use Realtyna\MvcCore\Exception\InvalidCallbackException;
 use ReflectionMethod;
 
+
+
 abstract class StartUp
 {
 
@@ -16,6 +18,23 @@ abstract class StartUp
     public array $scripts;
     public array $localizeScripts;
     public array $apis;
+
+    abstract public function init();
+
+    abstract public function components();
+
+    abstract public function onAdmin();
+
+    abstract public function api();
+
+    abstract public static function activation();
+
+    abstract public static function deactivation();
+
+    abstract public static function uninstallation();
+
+    abstract public function onUpdate();
+
 
     public function __construct(Config $config)
     {
