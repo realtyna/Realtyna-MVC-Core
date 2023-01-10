@@ -314,7 +314,7 @@ abstract class StartUp
                             } else {
                                 $this->registerScript($script);
                             }
-                            if (isset($this->localizeScripts)) {
+                            if (isset($this->localizeScripts[$script['handler']])) {
                                 if ($this->localizeScripts[$script['handler']]) {
                                     foreach ($this->localizeScripts[$script['handler']] as $localizeScript) {
                                         $this->localizeScripts($script['handler'], $localizeScript);
@@ -332,7 +332,7 @@ abstract class StartUp
                             } else {
                                 $this->registerScript($script);
                             }
-                            if (isset($this->localizeScripts)) {
+                            if (isset($this->localizeScripts[$script['handler']])) {
                                 if ($this->localizeScripts[$script['handler']]) {
                                     foreach ($this->localizeScripts[$script['handler']] as $localizeScript) {
                                         $this->localizeScripts($script['handler'], $localizeScript);
@@ -434,7 +434,7 @@ abstract class StartUp
     public function registerComponents()
     {
         foreach ($this->components as $class) {
-            $service = new $class();
+            $service = new $class($this);
 
             if (method_exists($service, 'register')) {
                 $service->register();
