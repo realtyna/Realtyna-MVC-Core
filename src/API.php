@@ -3,8 +3,8 @@
 namespace Realtyna\MvcCore;
 
 
-use Realtyna\Core\Auth;
-use Realtyna\Core\Models\APIResponse;
+use Realtyna\MvcCore\Auth;
+use Realtyna\MvcCore\Models\APIResponse;
 
 class API
 {
@@ -14,6 +14,7 @@ class API
     public StartUp $main;
     public $namespace;
     public array $publicRoutes = [];
+    private Auth $auth;
 
     public function __construct(StartUp $main, string $version, string $baseRoute)
     {
@@ -22,6 +23,7 @@ class API
         $this->main = $main;
         $this->namespace = $main->config->get('api.namespace');
         $this->validator = new Validator($this->main);
+        $this->auth = new Auth($this->main);
 
         add_filter('determine_current_user', [$this, 'determineCurrentUser']);
     }
@@ -62,7 +64,7 @@ class API
         $token = str_replace('Bearer ', '', $auth_header);
 
         try {
-            $user = Auth::getUser($token);
+            $user = $this->auth->getUser($token);
 
             if ($user) {
                 return $user->ID;
