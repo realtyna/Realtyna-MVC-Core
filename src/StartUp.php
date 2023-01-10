@@ -54,6 +54,7 @@ abstract class StartUp
             $this->onAdmin();
         }
         $this->api();
+        $this->onUpdate();
         $this->registerAPIs();
         $this->components();
         $this->registerComponents();
