@@ -14,12 +14,12 @@
       "email": "info@realtyna.net"
     },
     {
-      "name": "Anton E",
-      "email": "anton.e@realtyna.com"
-    },
-    {
       "name": "Chandler P",
       "email": "chandler.p@realtyna.net"
+    },
+    {
+      "name": "Anton E",
+      "email": "anton.e@realtyna.com"
     }
   ],
   "require": {
