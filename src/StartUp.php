@@ -6,18 +6,22 @@ use Realtyna\MvcCore\Exception\InvalidCallbackException;
 use ReflectionMethod;
 
 
-
 abstract class StartUp
 {
 
     public Config $config;
-    public array $actions;
-    public array $filters;
-    public array $components;
-    public array $styles;
-    public array $scripts;
-    public array $localizeScripts;
-    public array $apis;
+    public array $actions = [];
+    public array $filters = [];
+    public array $components = [];
+    public array $styles = [];
+    public array $scripts = [];
+    public array $localizeScripts = [];
+    public array $apis = [];
+    public View $view;
+    public Validator $validator;
+    public ?Eloquent $eloquent;
+    public Phinx $phinx;
+
 
     abstract public function init();
 
@@ -27,11 +31,11 @@ abstract class StartUp
 
     abstract public function api();
 
-    abstract public static function activation();
+    abstract public function activation();
 
-    abstract public static function deactivation();
+    abstract public function deactivation();
 
-    abstract public static function uninstallation();
+    abstract public function uninstallation();
 
     abstract public function onUpdate();
 
@@ -39,6 +43,22 @@ abstract class StartUp
     public function __construct(Config $config)
     {
         $this->config = $config;
+
+        $this->view = new View($this);
+        $this->phinx = new Phinx($this);
+        $this->validator = new Validator($this);
+        $this->eloquent = Eloquent::getInstance();
+
+        $this->init();
+        if(is_admin()){
+            $this->onAdmin();
+        }
+        $this->api();
+        $this->registerComponents();
+        $this->registerAPIs();
+        $this->components();
+        $this->registerAssets();
+        $this->registerHooks();
     }
 
 
@@ -428,7 +448,11 @@ abstract class StartUp
      */
     public function loadPluginTextDomain(): bool
     {
-        return load_plugin_textdomain($this->config->get('localize.textdomain'), false, $this->config->get('path.langs'));
+        return load_plugin_textdomain(
+            $this->config->get('localize.textdomain'),
+            false,
+            $this->config->get('path.langs')
+        );
     }
 
 }
