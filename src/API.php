@@ -14,7 +14,7 @@ class API
     public StartUp $main;
     public $namespace;
     public array $publicRoutes = [];
-    private Auth $auth;
+    public Auth $auth;
 
     public function __construct(StartUp $main, string $version, string $baseRoute)
     {
@@ -44,10 +44,10 @@ class API
         $wantedRoute = ltrim($wantedRoute, '/');
         $wantedRoute = rtrim($wantedRoute, '/');
 
-        if (in_array($wantedRoute, $this->publicRoutes)) {
+
+        if ($wantedRoute == '' || in_array($wantedRoute, $this->publicRoutes)) {
             return $user;
         }
-
         $auth_header = $_SERVER['HTTP_AUTHORIZATION'] ? sanitize_text_field($_SERVER['HTTP_AUTHORIZATION']) : false;
         /* Double check for different auth header string (server dependent) */
         if (!$auth_header) {
