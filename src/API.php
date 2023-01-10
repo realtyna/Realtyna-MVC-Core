@@ -24,8 +24,10 @@ class API
         $this->namespace = $main->config->get('api.namespace');
         $this->validator = new Validator($this->main);
         $this->auth = new Auth($this->main);
-
-        add_filter('determine_current_user', [$this, 'determineCurrentUser']);
+        $requested_url = sanitize_url($_SERVER['REQUEST_URI']);
+        if (strpos($requested_url, '/'.$this->baseRoute.'/')){
+            add_filter('determine_current_user', [$this, 'determineCurrentUser']);
+        }
     }
 
     public function determineCurrentUser($user)

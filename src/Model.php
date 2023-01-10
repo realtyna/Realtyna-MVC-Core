@@ -132,7 +132,7 @@ class Model extends BaseModel
         $collection = [];
         $data = static::$apiResponse;
 
-        if (count($data) != count($data, COUNT_RECURSIVE)) {
+        if (count($data) == count($data, COUNT_RECURSIVE)) {
             foreach ($data as $item) {
                 $collection[] = (new static())->fill($item);
             }
