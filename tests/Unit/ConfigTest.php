@@ -29,6 +29,7 @@ class ConfigTest extends \WP_UnitTestCase
             'path' => [
                 'plugin_dir' => __DIR__,
                 'views_dir' => __DIR__ . '/views',
+                'validator-messages' => __DIR__ . '/../../src/Fake/validation.php',
             ],
             'assets' => [
                 'css' => [

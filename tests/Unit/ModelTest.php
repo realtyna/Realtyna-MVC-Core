@@ -27,6 +27,9 @@ class ModelTest extends \WP_UnitTestCase
 
         $configsArray = [
             'namespace' => 'test',
+            'path' => [
+                'validator-messages' => __DIR__ . '/../../src/Fake/validation.php',
+            ]
         ];
 
         $this->config = new Config($configsArray);
