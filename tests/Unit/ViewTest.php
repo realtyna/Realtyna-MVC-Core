@@ -14,7 +14,7 @@ class ViewTest extends \WP_UnitTestCase
         parent::set_up();
         $configsArray = [
             'path' => [
-                'view' => __DIR__ . '/../..',
+                'view' => __DIR__ . '/../../templates',
                 'validator-messages' => __DIR__ . '/../../src/Fake/validation.php',
             ],
         ];

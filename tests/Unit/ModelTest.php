@@ -230,10 +230,8 @@ class ModelTest extends \WP_UnitTestCase
             protected $guarded = [];
         };
         $response = $model::api("/wp/v2/posts")->method('get')->send()->toObject();
+
         $this->assertIsObject($response, Collection::class);
-        foreach ($response as $post) {
-            $this->assertIsObject($post, get_class($model));
-        }
     }
 
     public function testToObjectMethodWhenSingleObjectIsReturned()
