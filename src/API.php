@@ -81,7 +81,7 @@ class API
     public function sendResponse($success, $data, $statusCode)
     {
         $response = new APIResponse($success, $data, $statusCode);
-        wp_send_json($response);
+        wp_send_json($response, $statusCode);
         exit();
     }
 

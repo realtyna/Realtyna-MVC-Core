@@ -138,7 +138,6 @@ class Model extends BaseModel
             }
             return collect($collection);
         }
-
         return (new static())->fill($data);
     }
 }
