@@ -27,7 +27,8 @@
     "robmorgan/phinx": "^0.13.4",
     "illuminate/database": "^8.83",
     "firebase/php-jwt": "^6.3",
-    "ext-json": "*"
+    "ext-json": "*",
+    "php-di/php-di": "^6.4"
   },
   "require-dev": {
     "symfony/var-dumper": "^v5.4.0",
