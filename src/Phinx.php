@@ -17,8 +17,8 @@ class Phinx
 
     public function __construct($main)
     {
-        $this->output = new BufferedOutput();
-        $this->phinx = new PhinxApplication();
+        $this->output = $main->container->get(BufferedOutput::class);
+        $this->phinx = $main->container->get(PhinxApplication::class);
         $this->main = $main;
     }
 

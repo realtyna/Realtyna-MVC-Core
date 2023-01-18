@@ -3,8 +3,8 @@
 namespace Realtyna\MvcCore;
 
 
-use Realtyna\Core\Auth;
-use Realtyna\Core\Models\APIResponse;
+use Realtyna\MvcCore\Auth;
+use Realtyna\MvcCore\Models\APIResponse;
 
 class API
 {
@@ -14,6 +14,7 @@ class API
     public StartUp $main;
     public $namespace;
     public array $publicRoutes = [];
+    public Auth $auth;
 
     public function __construct(StartUp $main, string $version, string $baseRoute)
     {
@@ -21,9 +22,12 @@ class API
         $this->version = $version;
         $this->main = $main;
         $this->namespace = $main->config->get('api.namespace');
-        $this->validator = new Validator($this->main);
-
-        add_filter('determine_current_user', [$this, 'determineCurrentUser']);
+        $this->validator = $main->container->get(Validator::class);
+        $this->auth = $main->container->get(Auth::class);
+        $requested_url = sanitize_url($_SERVER['REQUEST_URI']);
+        if (strpos($requested_url, '/'.$this->baseRoute.'/')){
+            add_filter('determine_current_user', [$this, 'determineCurrentUser']);
+        }
     }
 
     public function determineCurrentUser($user)
@@ -42,10 +46,10 @@ class API
         $wantedRoute = ltrim($wantedRoute, '/');
         $wantedRoute = rtrim($wantedRoute, '/');
 
-        if (in_array($wantedRoute, $this->publicRoutes)) {
+
+        if ($wantedRoute == '' || in_array($wantedRoute, $this->publicRoutes)) {
             return $user;
         }
-
         $auth_header = $_SERVER['HTTP_AUTHORIZATION'] ? sanitize_text_field($_SERVER['HTTP_AUTHORIZATION']) : false;
         /* Double check for different auth header string (server dependent) */
         if (!$auth_header) {
@@ -62,7 +66,7 @@ class API
         $token = str_replace('Bearer ', '', $auth_header);
 
         try {
-            $user = Auth::getUser($token);
+            $user = $this->auth->getUser($token);
 
             if ($user) {
                 return $user->ID;
@@ -77,7 +81,7 @@ class API
     public function sendResponse($success, $data, $statusCode)
     {
         $response = new APIResponse($success, $data, $statusCode);
-        wp_send_json($response);
+        wp_send_json($response, $statusCode);
         exit();
     }
 

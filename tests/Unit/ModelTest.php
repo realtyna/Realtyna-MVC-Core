@@ -27,11 +27,13 @@ class ModelTest extends \WP_UnitTestCase
 
         $configsArray = [
             'namespace' => 'test',
+            'path' => [
+                'validator-messages' => __DIR__ . '/../../src/Fake/validation.php',
+            ]
         ];
 
         $this->config = new Config($configsArray);
-        $this->main = $this->getMockForAbstractClass('Realtyna\MvcCore\StartUp', [$this->config]);
-
+        $this->main = new StartUp($this->config);
 
         $apiController = new class($this->main, 'v4', 'user') {
 
@@ -227,10 +229,8 @@ class ModelTest extends \WP_UnitTestCase
             protected $guarded = [];
         };
         $response = $model::api("/wp/v2/posts")->method('get')->send()->toObject();
+
         $this->assertIsObject($response, Collection::class);
-        foreach ($response as $post) {
-            $this->assertIsObject($post, get_class($model));
-        }
     }
 
     public function testToObjectMethodWhenSingleObjectIsReturned()

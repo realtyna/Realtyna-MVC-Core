@@ -21,6 +21,7 @@ class StartUpTest extends \WP_UnitTestCase
         $configsArray = [
             'namespace' => 'realtyna-test',
             'path' => [
+                'validator-messages' => __DIR__ . '/../../src/Fake/validation.php',
                 'assets' => [
                     'css' => __DIR__ . '/../..',
                     'js' => __DIR__ . '/../..',
@@ -256,7 +257,7 @@ class StartUpTest extends \WP_UnitTestCase
 
     public function testRegisterAssetsMethodWithStyleEnqueuedOnClientSide()
     {
-        $fileName = $this->createFile($this->main->config->get('path.assets.js') . "/test.css");
+        $fileName = $this->createFile($this->main->config->get('path.assets.css') . "/test.css");
 
         $this->main->addStyle('realtyna-mvc-css', 'test.css', [], false, true, '1.00');
         $this->main->registerAssets();
@@ -271,7 +272,7 @@ class StartUpTest extends \WP_UnitTestCase
 
     public function testRegisterAssetsMethodWithStyleRegisteredOnClientSide()
     {
-        $fileName = $this->createFile($this->main->config->get('path.assets.js') . "/test.css");
+        $fileName = $this->createFile($this->main->config->get('path.assets.css') . "/test.css");
 
         $this->main->addStyle('realtyna-mvc-css', 'test.css', [], false, false, '1.00');
         $this->main->registerAssets();

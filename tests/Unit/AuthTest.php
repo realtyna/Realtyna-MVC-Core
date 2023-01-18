@@ -17,6 +17,9 @@ class AuthTest extends \WP_UnitTestCase
         $configsArray = [
             'namespace' => 'test',
             'jwt_secret' => 'soMG4!P3C!Gjmj#Bf4',
+            'path'  => [
+                'validator-messages' => __DIR__ . '/../../src/Fake/validation.php',
+            ]
         ];
 
         $this->config = new Config($configsArray);

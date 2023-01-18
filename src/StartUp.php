@@ -2,13 +2,19 @@
 
 namespace Realtyna\MvcCore;
 
+use DI\ContainerBuilder;
+use DI\DependencyException;
+use DI\NotFoundException;
 use Realtyna\MvcCore\Exception\InvalidCallbackException;
 use ReflectionMethod;
+use DI;
 
-
-abstract class StartUp
+class StartUp
 {
 
+    /*
+     * @inject
+     */
     public Config $config;
     public array $actions = [];
     public array $filters = [];
@@ -21,42 +27,69 @@ abstract class StartUp
     public Validator $validator;
     public ?Eloquent $eloquent;
     public Phinx $phinx;
+    public DI\Container $container;
 
 
-    abstract public function init();
+    public function init()
+    {
+    }
 
-    abstract public function components();
+    public function components()
+    {
+    }
 
-    abstract public function onAdmin();
+    public function onAdmin()
+    {
+    }
 
-    abstract public function api();
+    public function api()
+    {
+    }
 
-    abstract public function activation();
+    public function activation()
+    {
+    }
 
-    abstract public function deactivation();
+    public function deactivation()
+    {
+    }
 
-    abstract public function uninstallation();
+    public function uninstallation()
+    {
+    }
 
-    abstract public function onUpdate();
+    public function onUpdate()
+    {
+    }
 
 
+    /**
+     * @throws InvalidCallbackException
+     * @throws DependencyException
+     * @throws NotFoundException
+     */
     public function __construct(Config $config)
     {
-        $this->config = $config;
+        $containerBuilder = new ContainerBuilder();
+        $containerBuilder->useAutowiring(true);
+        $containerBuilder->addDefinitions([
+            Config::class => $config,
+        ]);
 
-        $this->view = new View($this);
-        $this->phinx = new Phinx($this);
-        $this->validator = new Validator($this);
+        $container = $containerBuilder->build();
+        $this->config = $container->get(Config::class);;
         $this->eloquent = Eloquent::getInstance();
+        $this->container = $container;
 
         $this->init();
-        if(is_admin()){
+        if (is_admin()) {
             $this->onAdmin();
         }
         $this->api();
-        $this->registerComponents();
+        $this->onUpdate();
         $this->registerAPIs();
         $this->components();
+        $this->registerComponents();
         $this->registerAssets();
         $this->registerHooks();
     }
@@ -314,7 +347,7 @@ abstract class StartUp
                             } else {
                                 $this->registerScript($script);
                             }
-                            if (isset($this->localizeScripts)) {
+                            if (isset($this->localizeScripts[$script['handler']])) {
                                 if ($this->localizeScripts[$script['handler']]) {
                                     foreach ($this->localizeScripts[$script['handler']] as $localizeScript) {
                                         $this->localizeScripts($script['handler'], $localizeScript);
@@ -332,7 +365,7 @@ abstract class StartUp
                             } else {
                                 $this->registerScript($script);
                             }
-                            if (isset($this->localizeScripts)) {
+                            if (isset($this->localizeScripts[$script['handler']])) {
                                 if ($this->localizeScripts[$script['handler']]) {
                                     foreach ($this->localizeScripts[$script['handler']] as $localizeScript) {
                                         $this->localizeScripts($script['handler'], $localizeScript);
@@ -419,8 +452,13 @@ abstract class StartUp
             foreach ($baseRoutes as $baseRoute => $classes) {
                 foreach ($classes as $class => $callbacks) {
                     foreach ($callbacks as $callback) {
-                        $class = new $class($this, $version, $baseRoute);
+
+                        $class = $this->container->make(is_object($class) ? get_class($class) : $class , [
+                            'version' => $version,
+                            'baseRoute' => $baseRoute
+                        ]);
                         $this->addAction('rest_api_init', [$class, $callback]);
+                        
                     }
                 }
             }
@@ -434,7 +472,7 @@ abstract class StartUp
     public function registerComponents()
     {
         foreach ($this->components as $class) {
-            $service = new $class();
+            $service = $this->container->get($class);
 
             if (method_exists($service, 'register')) {
                 $service->register();

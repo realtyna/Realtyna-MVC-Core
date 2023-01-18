@@ -75,8 +75,8 @@ class View
                 break;
 
                 // Check plugin compatibility last
-            } elseif ( file_exists( trailingslashit( $this->main->config->get('path.view') . '/templates' ) . $template_name ) ) {
-                $located = trailingslashit( $this->main->config->get('path.view') . '/templates' ) . $template_name;
+            } elseif ( file_exists( trailingslashit( $this->main->config->get('path.view')) . $template_name ) ) {
+                $located = trailingslashit( $this->main->config->get('path.view')) . $template_name;
                 break;
             }
         }

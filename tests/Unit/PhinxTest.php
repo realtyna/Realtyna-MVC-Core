@@ -22,7 +22,8 @@ class PhinxTest extends \WP_UnitTestCase
             'path'      => [
                 'phinx' => [
                     'conf'  => __DIR__ . '/../../phinx.php'
-                ]
+                ],
+                'validator-messages' => __DIR__ . '/../../src/Fake/validation.php',
             ]
         ];
 
