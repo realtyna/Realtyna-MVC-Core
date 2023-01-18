@@ -15,7 +15,7 @@ class Phinx
     protected PhinxApplication $phinx;
     private StartUp $main;
 
-    public function __construct($main)
+    public function __construct(StartUp $main)
     {
         $this->output = $main->container->get(BufferedOutput::class);
         $this->phinx = $main->container->get(PhinxApplication::class);
