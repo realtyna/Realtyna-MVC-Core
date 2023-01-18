@@ -472,7 +472,7 @@ class StartUp
     public function registerComponents()
     {
         foreach ($this->components as $class) {
-            $service = new $class($this);
+            $service = $this->container->get($class);
 
             if (method_exists($service, 'register')) {
                 $service->register();
