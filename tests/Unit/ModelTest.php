@@ -33,8 +33,7 @@ class ModelTest extends \WP_UnitTestCase
         ];
 
         $this->config = new Config($configsArray);
-        $this->main = $this->getMockForAbstractClass('Realtyna\MvcCore\StartUp', [$this->config]);
-
+        $this->main = new StartUp($this->config);
 
         $apiController = new class($this->main, 'v4', 'user') {
 
