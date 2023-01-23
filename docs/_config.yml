@@ -1,6 +1,4 @@
-remote_theme: pages-themes/cayman@v0.2.0
-plugins:
-  - jekyll-remote-theme
+theme: just-the-docs
 title: Realtyna MVC Core Documentation
 description: How to use Realtyna MVC Core to develop WordPress Plugins
 show_downloads: false
