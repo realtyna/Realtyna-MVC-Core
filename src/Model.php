@@ -10,6 +10,7 @@ use WP_REST_Request;
 class Model extends BaseModel
 {
 
+    protected $guarded = [];
 
     /**
      * @var mixed|string
