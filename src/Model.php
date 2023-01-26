@@ -10,6 +10,7 @@ use WP_REST_Request;
 class Model extends BaseModel
 {
 
+    protected $guarded = [];
 
     /**
      * @var mixed|string
@@ -106,7 +107,7 @@ class Model extends BaseModel
         $request = new WP_REST_Request(static::$method, static::$apiRoute);
         if (static::$method == 'GET') {
             $request->set_query_params(static::$conditions);
-        } elseif (static::$method == 'POST') {
+        } else {
             $request->set_body_params(static::$conditions);
         }
         $request->set_headers(static::$headers);
