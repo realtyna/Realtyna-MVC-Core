@@ -72,6 +72,7 @@ class StartUp
     {
         $containerBuilder = new ContainerBuilder();
         $containerBuilder->useAutowiring(true);
+        $containerBuilder->useAnnotations(true);
         $containerBuilder->addDefinitions([
             Config::class => $config,
         ]);

@@ -28,7 +28,8 @@
     "illuminate/database": "^8.83",
     "firebase/php-jwt": "^6.3",
     "ext-json": "*",
-    "php-di/php-di": "^6.4"
+    "php-di/php-di": "^6.4",
+    "doctrine/annotations": "^1.14.2"
   },
   "require-dev": {
     "symfony/var-dumper": "^v5.4.0",
