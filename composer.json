@@ -33,15 +33,11 @@
     "firebase/php-jwt": "^6.3",
     "ext-json": "*",
     "php-di/php-di": "^6.4",
-    "doctrine/annotations": "^1.14.2"
+    "doctrine/annotations": "^1.14.2",
+    "htmlburger/carbon-fields-plugin": "^3.3"
   },
   "require-dev": {
     "symfony/var-dumper": "^v5.4.0",
     "yoast/phpunit-polyfills": "^1.0"
-  },
-  "config": {
-    "allow-plugins": {
-      "kylekatarnls/update-helper": false
-    }
   }
 }
