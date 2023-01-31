@@ -23,6 +23,7 @@ class StartUp
     public array $scripts = [];
     public array $localizeScripts = [];
     public array $apis = [];
+    public array $settings = [];
     public View $view;
     public Validator $validator;
     public ?Eloquent $eloquent;
@@ -62,6 +63,10 @@ class StartUp
     {
     }
 
+    public function settings()
+    {
+    }
+
 
     /**
      * @throws InvalidCallbackException
@@ -87,7 +92,7 @@ class StartUp
         if (is_admin()) {
             $this->onAdmin();
         }
-
+        $this->settings();
 
         $this->addAction('after_setup_theme', [$this, 'loadCarbon']);
 
@@ -95,6 +100,7 @@ class StartUp
         $this->onUpdate();
         $this->registerAPIs();
         $this->components();
+        $this->registerSettings();
         $this->registerComponents();
         $this->registerAssets();
         $this->registerHooks();
@@ -184,9 +190,19 @@ class StartUp
      * @return void
      * @since 0.0.1
      */
-    public function addComponent($component): void
+    public function addComponent(Component $component): void
     {
         $this->components [] = $component;
+    }
+
+    /**
+     * add class to Settings
+     * @param $class
+     * @return void
+     */
+    public function addSetting(Setting $class)
+    {
+        $this->settings [] = $class;
     }
 
     /**
@@ -486,6 +502,13 @@ class StartUp
         }
     }
 
+    public function registerSettings()
+    {
+        foreach ($this->settings as $setting){
+            add_action('carbon_fields_register_fields', [$setting, 'registerPluginOptions']);
+        }
+    }
+
     /**
      * @return bool
      * @since 0.0.1
@@ -499,6 +522,10 @@ class StartUp
         );
     }
 
+    /**
+     * Loads Carbon fields
+     * @return void
+     */
     public function loadCarbon(){
         \Carbon_Fields\Carbon_Fields::boot();
     }
