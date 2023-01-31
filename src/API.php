@@ -45,7 +45,7 @@ class API
         $wantedRoute = str_replace($rest_api_slug, '', $requested_url);
         $wantedRoute = ltrim($wantedRoute, '/');
         $wantedRoute = rtrim($wantedRoute, '/');
-
+        $wantedRoute = strtok($wantedRoute, '?');
 
         if ($wantedRoute == '' || in_array($wantedRoute, $this->publicRoutes)) {
             return $user;
