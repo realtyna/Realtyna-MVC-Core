@@ -21,7 +21,7 @@ class API
         $this->baseRoute = $baseRoute;
         $this->version = $version;
         $this->main = $main;
-        $this->namespace = $main->config->get('api.namespace');
+        $this->namespace = 'realtyna/' . $main->config->get('api.namespace');
         $this->validator = $main->container->get(Validator::class);
         $this->auth = $main->container->get(Auth::class);
         $requested_url = sanitize_url($_SERVER['REQUEST_URI']);
