@@ -190,7 +190,7 @@ class StartUp
      * @return void
      * @since 0.0.1
      */
-    public function addComponent(Component $component): void
+    public function addComponent($component): void
     {
         $this->components [] = $component;
     }
@@ -200,7 +200,7 @@ class StartUp
      * @param $class
      * @return void
      */
-    public function addSetting(Setting $class)
+    public function addSetting($class)
     {
         $this->settings [] = $class;
     }
