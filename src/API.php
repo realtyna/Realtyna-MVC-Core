@@ -100,4 +100,20 @@ class API
             'message' => 'Unauthenticated.'
         ], 403);
     }
+
+    /**
+     * @param $request
+     * @return array
+     */
+    public function requestHandler(\WP_REST_Request $request): array
+    {
+        return array_merge(
+            $request->get_params(),
+            json_decode($request->get_body(), true) ?
+                json_decode($request->get_body(), true) : [],
+            $request->get_body_params() ? $request->get_body_params() : [],
+            $request->get_json_params() ? $request->get_json_params() : []
+        );
+    }
+
 }
