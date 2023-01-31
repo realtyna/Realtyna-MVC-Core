@@ -70,6 +70,7 @@ class StartUp
      */
     public function __construct(Config $config)
     {
+
         $containerBuilder = new ContainerBuilder();
         $containerBuilder->useAutowiring(true);
         $containerBuilder->useAnnotations(true);
@@ -86,6 +87,10 @@ class StartUp
         if (is_admin()) {
             $this->onAdmin();
         }
+
+
+        $this->addAction('after_setup_theme', [$this, 'loadCarbon']);
+
         $this->api();
         $this->onUpdate();
         $this->registerAPIs();
@@ -492,6 +497,10 @@ class StartUp
             false,
             $this->config->get('path.langs')
         );
+    }
+
+    public function loadCarbon(){
+        \Carbon_Fields\Carbon_Fields::boot();
     }
 
 }
