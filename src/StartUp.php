@@ -92,15 +92,16 @@ class StartUp
         if (is_admin()) {
             $this->onAdmin();
         }
-        $this->settings();
 
         $this->addAction('after_setup_theme', [$this, 'loadCarbon']);
+        $this->settings();
+        $this->registerSettings();
+
 
         $this->api();
         $this->onUpdate();
         $this->registerAPIs();
         $this->components();
-        $this->registerSettings();
         $this->registerComponents();
         $this->registerAssets();
         $this->registerHooks();
