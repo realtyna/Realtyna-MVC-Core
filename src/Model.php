@@ -10,6 +10,8 @@ use WP_REST_Request;
 class Model extends BaseModel
 {
 
+    public $timestamps = false;
+
     protected $guarded = [];
 
     /**
