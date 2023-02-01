@@ -86,9 +86,13 @@ class API
         return new \WP_REST_Response($response, 403);
     }
 
-    public function response($data, $statusCode): \WP_REST_Response
+    public function response($success, $data, $statusCode): \WP_REST_Response
     {
-        return new \WP_REST_Response($data, $statusCode);
+        $response = [
+            'success'   => $success,
+            'data'      => $data
+        ];
+        return new \WP_REST_Response($response, $statusCode);
     }
 
     protected function returnValidationErrorMessages($data)
@@ -97,7 +101,7 @@ class API
             'message' => __('One or more of parameters was not valid!'),
             'errors' => $data
         ];
-        $this->response($data, 400);
+        return $this->response(false, $data, 400);
     }
 
 
