@@ -25,7 +25,7 @@ class API
         $this->validator = $main->container->get(Validator::class);
         $this->auth = $main->container->get(Auth::class);
         $requested_url = sanitize_url($_SERVER['REQUEST_URI']);
-        if (strpos($requested_url, '/'.$this->baseRoute.'/')){
+        if (strpos($requested_url, '/' . $this->baseRoute . '/')) {
             add_filter('determine_current_user', [$this, 'determineCurrentUser']);
         }
     }
@@ -59,7 +59,10 @@ class API
         }
 
         if (!$auth_header) {
-            $this->returnUnauthenticatedResponse();
+            $response = [
+                'message' => 'Unauthenticated.'
+            ];
+            return new \WP_REST_Response($response, 403);
         }
 
 
@@ -72,17 +75,20 @@ class API
                 return $user->ID;
             }
         } catch (\Exception $e) {
-            $this->returnUnauthenticatedResponse();
+            $response = [
+                'message' => 'Unauthenticated.'
+            ];
+            return new \WP_REST_Response($response, 403);
         }
-        $this->returnUnauthenticatedResponse();
-        return false;
+        $response = [
+            'message' => 'Unauthenticated.'
+        ];
+        return new \WP_REST_Response($response, 403);
     }
 
-    public function sendResponse($success, $data, $statusCode)
+    public function response($data, $statusCode): \WP_REST_Response
     {
-        $response = new APIResponse($success, $data, $statusCode);
-        wp_send_json($response, $statusCode);
-        exit();
+        return new \WP_REST_Response($data, $statusCode);
     }
 
     protected function returnValidationErrorMessages($data)
