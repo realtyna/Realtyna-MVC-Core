@@ -97,15 +97,9 @@ class API
             'message' => __('One or more of parameters was not valid!'),
             'errors' => $data
         ];
-        $this->sendResponse(false, $data, 400);
+        $this->response($data, 400);
     }
 
-    protected function returnUnauthenticatedResponse()
-    {
-        $this->sendResponse(false, [
-            'message' => 'Unauthenticated.'
-        ], 403);
-    }
 
     /**
      * @param $request
