@@ -62,7 +62,8 @@ class API
             $response = [
                 'message' => 'Unauthenticated.'
             ];
-            return new \WP_REST_Response($response, 403);
+            wp_send_json(new \WP_REST_Response($response, 403), 403);
+            exit();
         }
 
 
@@ -78,19 +79,21 @@ class API
             $response = [
                 'message' => 'Unauthenticated.'
             ];
-            return new \WP_REST_Response($response, 403);
+            wp_send_json(new \WP_REST_Response($response, 403), 403);
+            exit();
         }
         $response = [
             'message' => 'Unauthenticated.'
         ];
-        return new \WP_REST_Response($response, 403);
+        wp_send_json(new \WP_REST_Response($response, 403), 403);
+        exit();
     }
 
     public function response($success, $data, $statusCode): \WP_REST_Response
     {
         $response = [
-            'success'   => $success,
-            'data'      => $data
+            'success' => $success,
+            'data' => $data
         ];
         return new \WP_REST_Response($response, $statusCode);
     }
