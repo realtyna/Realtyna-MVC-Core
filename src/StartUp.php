@@ -112,7 +112,8 @@ class StartUp
             $this->registerAssets();
             $this->registerHooks();
         } else {
-            $this->addNotice('Plugin did not start;');
+            $error = '<h2>'.$config->get('plugin.name').' did not start.</h2>';
+            $this->addNotice($error);
         }
         $this->registerNotices();
     }
