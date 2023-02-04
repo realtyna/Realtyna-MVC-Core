@@ -75,32 +75,6 @@ class StartUp
         return true;
     }
 
-    private function coreRequirements(): bool
-    {
-        $valid = true;
-        if (!extension_loaded('pdo_mysql')) {
-            $html = '<p><strong>pdo_mysql</strong> extension is not installed. ask your host administrator to install it.</p>';
-            $this->addNotice($html, 'error');
-            $valid = false;
-        }
-
-        if (!defined('REALTYNA_JWT_SECRET')) {
-            $html = '<p>
-                    <strong>REALTYNA_JWT_SECRET</strong> is not defined in <strong>wp-config.php</strong>.
-                    We will define a token for you but keep it in mind for better security you need 
-                    to define it in <strong>wp-config.php</strong> like so:
-<pre>
-define("REALTYNA_JWT_SECRET", "YOUR RANDOM SECRET TOKEN")                    
-</pre>
-                    (Token can be anything, example: ' . bin2hex(random_bytes(18)) . ')
-                </p>';
-            $this->addNotice($html, 'error', true);
-            define('REALTYNA_JWT_SECRET', $this->generateUniqueHash($_SERVER['SERVER_NAME'], 50));
-        }
-
-        return $valid;
-    }
-
     /**
      * @throws InvalidCallbackException
      * @throws DependencyException
@@ -108,6 +82,11 @@ define("REALTYNA_JWT_SECRET", "YOUR RANDOM SECRET TOKEN")
      */
     public function __construct(Config $config)
     {
+
+        if (!function_exists('is_plugin_active')) {
+            include_once(ABSPATH . 'wp-admin/includes/plugin.php');
+        }
+
         $containerBuilder = new ContainerBuilder();
         $containerBuilder->useAutowiring(true);
         $containerBuilder->useAnnotations(true);
@@ -139,10 +118,8 @@ define("REALTYNA_JWT_SECRET", "YOUR RANDOM SECRET TOKEN")
             $this->registerAssets();
             $this->registerHooks();
         } else {
-            if(empty($this->notices)){
-                $error = '<p><strong>' . $config->get('plugin.name') . '</strong> did not start. Call plugin support.</p>';
-                $this->addNotice($error);
-            }
+            $error = '<p><strong>' . $config->get('plugin.name') . '</strong> did not start. Check errors.</p>';
+            $this->addNotice($error);
         }
 
         $this->registerNotices();
@@ -602,6 +579,12 @@ define("REALTYNA_JWT_SECRET", "YOUR RANDOM SECRET TOKEN")
         \Carbon_Fields\Carbon_Fields::boot();
     }
 
+    /**
+     * Generate hash based on domain name
+     * @param $input
+     * @param $length
+     * @return false|string
+     */
     private function generateUniqueHash($input, $length = 30)
     {
         // Create a raw binary sha256 hash and base64 encode it.
@@ -612,6 +595,33 @@ define("REALTYNA_JWT_SECRET", "YOUR RANDOM SECRET TOKEN")
         $hash_urlsafe = rtrim($hash_urlsafe, '=');
         // Shorten the string before returning.
         return substr($hash_urlsafe, 0, $length);
+    }
+
+
+    private function coreRequirements(): bool
+    {
+        $valid = true;
+        if (!extension_loaded('pdo_mysql')) {
+            $html = '<p><strong>pdo_mysql</strong> extension is not installed. ask your host administrator to install it.</p>';
+            $this->addNotice($html, 'error');
+            $valid = false;
+        }
+
+        if (!defined('REALTYNA_JWT_SECRET')) {
+            $html = '<p>
+                    <strong>REALTYNA_JWT_SECRET</strong> is not defined in <strong>wp-config.php</strong>.
+                    We will define a token for you but keep it in mind for better security you need 
+                    to define it in <strong>wp-config.php</strong> like so:
+<pre>
+define("REALTYNA_JWT_SECRET", "YOUR RANDOM SECRET TOKEN")                    
+</pre>
+                    (Token can be anything, example: ' . bin2hex(random_bytes(18)) . ')
+                </p>';
+            $this->addNotice($html, 'error', true);
+            define('REALTYNA_JWT_SECRET', $this->generateUniqueHash($_SERVER['SERVER_NAME'], 50));
+        }
+
+        return $valid;
     }
 
 }
