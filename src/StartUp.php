@@ -81,19 +81,19 @@ class StartUp
      */
     public function __construct(Config $config)
     {
+        $containerBuilder = new ContainerBuilder();
+        $containerBuilder->useAutowiring(true);
+        $containerBuilder->useAnnotations(true);
+        $containerBuilder->addDefinitions([
+            Config::class => $config,
+        ]);
+
+        $container = $containerBuilder->build();
+        $this->config = $container->get(Config::class);;
+        $this->eloquent = Eloquent::getInstance();
+        $this->container = $container;
+
         if ($this->requirements()) {
-            $containerBuilder = new ContainerBuilder();
-            $containerBuilder->useAutowiring(true);
-            $containerBuilder->useAnnotations(true);
-            $containerBuilder->addDefinitions([
-                Config::class => $config,
-            ]);
-
-            $container = $containerBuilder->build();
-            $this->config = $container->get(Config::class);;
-            $this->eloquent = Eloquent::getInstance();
-            $this->container = $container;
-
             $this->init();
             if (is_admin()) {
                 $this->onAdmin();
