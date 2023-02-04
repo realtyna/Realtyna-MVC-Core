@@ -24,6 +24,7 @@ class StartUp
     public array $localizeScripts = [];
     public array $apis = [];
     public array $settings = [];
+    public array $notices = [];
     public View $view;
     public Validator $validator;
     public ?Eloquent $eloquent;
@@ -67,6 +68,11 @@ class StartUp
     {
     }
 
+    public function requirements(): bool
+    {
+        return true;
+    }
+
 
     /**
      * @throws InvalidCallbackException
@@ -75,36 +81,40 @@ class StartUp
      */
     public function __construct(Config $config)
     {
+        if ($this->requirements()) {
+            $containerBuilder = new ContainerBuilder();
+            $containerBuilder->useAutowiring(true);
+            $containerBuilder->useAnnotations(true);
+            $containerBuilder->addDefinitions([
+                Config::class => $config,
+            ]);
 
-        $containerBuilder = new ContainerBuilder();
-        $containerBuilder->useAutowiring(true);
-        $containerBuilder->useAnnotations(true);
-        $containerBuilder->addDefinitions([
-            Config::class => $config,
-        ]);
+            $container = $containerBuilder->build();
+            $this->config = $container->get(Config::class);;
+            $this->eloquent = Eloquent::getInstance();
+            $this->container = $container;
 
-        $container = $containerBuilder->build();
-        $this->config = $container->get(Config::class);;
-        $this->eloquent = Eloquent::getInstance();
-        $this->container = $container;
+            $this->init();
+            if (is_admin()) {
+                $this->onAdmin();
+            }
 
-        $this->init();
-        if (is_admin()) {
-            $this->onAdmin();
+            $this->addAction('after_setup_theme', [$this, 'loadCarbon']);
+            $this->settings();
+            $this->registerSettings();
+
+
+            $this->api();
+            $this->onUpdate();
+            $this->registerAPIs();
+            $this->components();
+            $this->registerComponents();
+            $this->registerAssets();
+            $this->registerHooks();
+        } else {
+            $this->addNotice('Plugin did not start;');
         }
-
-        $this->addAction('after_setup_theme', [$this, 'loadCarbon']);
-        $this->settings();
-        $this->registerSettings();
-
-
-        $this->api();
-        $this->onUpdate();
-        $this->registerAPIs();
-        $this->components();
-        $this->registerComponents();
-        $this->registerAssets();
-        $this->registerHooks();
+        $this->registerNotices();
     }
 
 
@@ -445,6 +455,33 @@ class StartUp
         }
     }
 
+
+    public function addNotice(string $message, string $type = 'error')
+    {
+        $this->notices[] = [
+            'type' => $type,
+            'message' => $message,
+        ];
+    }
+
+
+    public function registerNotices()
+    {
+        foreach ($this->notices as $notice) {
+            add_action('admin_notices', function () use ($notice) {
+                $type = $notice['type'];
+                $message = $notice['message'];
+                $html = "
+                    <div class=\"notice notice-$type\">
+                        $message
+                    </div>
+                    ";
+
+                echo $html;
+            });
+        }
+    }
+
     /**
      * @return void
      * @since 0.0.1
@@ -475,13 +512,11 @@ class StartUp
             foreach ($baseRoutes as $baseRoute => $classes) {
                 foreach ($classes as $class => $callbacks) {
                     foreach ($callbacks as $callback) {
-
-                        $class = $this->container->make(is_object($class) ? get_class($class) : $class , [
+                        $class = $this->container->make(is_object($class) ? get_class($class) : $class, [
                             'version' => $version,
                             'baseRoute' => $baseRoute
                         ]);
                         $this->addAction('rest_api_init', [$class, $callback]);
-                        
                     }
                 }
             }
@@ -505,7 +540,7 @@ class StartUp
 
     public function registerSettings()
     {
-        foreach ($this->settings as $setting){
+        foreach ($this->settings as $setting) {
             add_action('carbon_fields_register_fields', [$setting, 'registerPluginOptions']);
         }
     }
@@ -527,7 +562,8 @@ class StartUp
      * Loads Carbon fields
      * @return void
      */
-    public function loadCarbon(){
+    public function loadCarbon()
+    {
         \Carbon_Fields\Carbon_Fields::boot();
     }
 
