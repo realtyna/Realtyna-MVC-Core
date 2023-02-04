@@ -9,6 +9,8 @@ use Realtyna\MvcCore\Exception\InvalidCallbackException;
 use ReflectionMethod;
 use DI;
 
+use function Symfony\Component\Translation\t;
+
 class StartUp
 {
 
@@ -137,9 +139,12 @@ define("REALTYNA_JWT_SECRET", "YOUR RANDOM SECRET TOKEN")
             $this->registerAssets();
             $this->registerHooks();
         } else {
-            $error = '<h2>' . $config->get('plugin.name') . ' did not start.</h2>';
-            $this->addNotice($error);
+            if(empty($this->notices)){
+                $error = '<p><strong>' . $config->get('plugin.name') . '</strong> did not start. Call plugin support.</p>';
+                $this->addNotice($error);
+            }
         }
+
         $this->registerNotices();
     }
 
