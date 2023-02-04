@@ -73,6 +73,31 @@ class StartUp
         return true;
     }
 
+    private function coreRequirements(): bool
+    {
+        $valid = true;
+        if (!extension_loaded('pdo_mysql')) {
+            $html = '<p><strong>pdo_mysql</strong> extension is not installed. ask your host administrator to install it.</p>';
+            $this->addNotice($html, 'error');
+            $valid = false;
+        }
+
+        if (!defined('REALTYNA_JWT_SECRET')) {
+            $html = '<p>
+                    <strong>REALTYNA_JWT_SECRET</strong> is not defined in <strong>wp-config.php</strong>.
+                    We will define a token for you but keep it in mind for better security you need 
+                    to define it in <strong>wp-config.php</strong> like so:
+<pre>
+define("REALTYNA_JWT_SECRET", "YOUR RANDOM SECRET TOKEN")                    
+</pre>
+                    (Token can be anything, example: ' . bin2hex(random_bytes(18)) . ')
+                </p>';
+            $this->addNotice($html, 'error', true);
+            define('REALTYNA_JWT_SECRET', $this->generateUniqueHash($_SERVER['SERVER_NAME'], 50));
+        }
+
+        return $valid;
+    }
 
     /**
      * @throws InvalidCallbackException
@@ -93,7 +118,7 @@ class StartUp
         $this->eloquent = Eloquent::getInstance();
         $this->container = $container;
 
-        if ($this->requirements()) {
+        if ($this->requirements() && $this->coreRequirements()) {
             $this->init();
             if (is_admin()) {
                 $this->onAdmin();
@@ -112,7 +137,7 @@ class StartUp
             $this->registerAssets();
             $this->registerHooks();
         } else {
-            $error = '<h2>'.$config->get('plugin.name').' did not start.</h2>';
+            $error = '<h2>' . $config->get('plugin.name') . ' did not start.</h2>';
             $this->addNotice($error);
         }
         $this->registerNotices();
@@ -457,23 +482,27 @@ class StartUp
     }
 
 
-    public function addNotice(string $message, string $type = 'error')
+    public function addNotice(string $message, string $type = 'error', bool $isDismissible = false)
     {
         $this->notices[] = [
             'type' => $type,
             'message' => $message,
+            'isDismissible' => $isDismissible,
         ];
     }
-
 
     public function registerNotices()
     {
         foreach ($this->notices as $notice) {
             add_action('admin_notices', function () use ($notice) {
+                $extraClass = '';
                 $type = $notice['type'];
                 $message = $notice['message'];
+                if ($notice['isDismissible']) {
+                    $extraClass .= 'is-dismissible';
+                }
                 $html = "
-                    <div class=\"notice notice-$type\">
+                    <div class=\"notice notice-$type $extraClass\">
                         $message
                     </div>
                     ";
@@ -566,6 +595,18 @@ class StartUp
     public function loadCarbon()
     {
         \Carbon_Fields\Carbon_Fields::boot();
+    }
+
+    private function generateUniqueHash($input, $length = 30)
+    {
+        // Create a raw binary sha256 hash and base64 encode it.
+        $hash_base64 = base64_encode(hash('sha256', $input, true));
+        // Replace non-urlsafe chars to make the string urlsafe.
+        $hash_urlsafe = strtr($hash_base64, '+/', '-_');
+        // Trim base64 padding characters from the end.
+        $hash_urlsafe = rtrim($hash_urlsafe, '=');
+        // Shorten the string before returning.
+        return substr($hash_urlsafe, 0, $length);
     }
 
 }
