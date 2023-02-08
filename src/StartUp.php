@@ -554,7 +554,7 @@ class StartUp
     public function registerSettings()
     {
         foreach ($this->settings as $setting) {
-            add_action('carbon_fields_register_fields', [$setting, 'registerPluginOptions']);
+            add_action('carbon_fields_register_fields', [$this->container->get($setting), 'registerPluginOptions']);
         }
     }
 

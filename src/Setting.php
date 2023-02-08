@@ -11,5 +11,5 @@ abstract class Setting
         $this->main = $main;
 
     }
-    abstract public static function registerPluginOptions();
+    abstract public function registerPluginOptions();
 }
