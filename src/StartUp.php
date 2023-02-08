@@ -97,7 +97,6 @@ class StartUp
 
         $container = $containerBuilder->build();
         $this->config = $container->get(Config::class);;
-        $this->license = $container->get(License::class);;
         $this->eloquent = Eloquent::getInstance();
         $this->container = $container;
 
@@ -111,19 +110,13 @@ class StartUp
             $this->settings();
             $this->registerSettings();
 
-            if($this->license->isValid()){
-                $this->api();
-                $this->onUpdate();
-                $this->registerAPIs();
-                $this->components();
-                $this->registerComponents();
-                $this->registerAssets();
-                $this->registerHooks();
-            }else{
-                $this->addNotice(
-                    '<p><strong>Plugin license</strong> is not valid.</p>'
-                );
-            }
+            $this->api();
+            $this->onUpdate();
+            $this->registerAPIs();
+            $this->components();
+            $this->registerComponents();
+            $this->registerAssets();
+            $this->registerHooks();
 
         } else {
             $error = '<p><strong>' . $config->get('plugin.name') . '</strong> did not start. Check errors.</p>';
