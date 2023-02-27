@@ -29,7 +29,6 @@ class StartUp
     public array $notices = [];
     public View $view;
     public Validator $validator;
-    public ?Eloquent $eloquent;
     public Phinx $phinx;
     public DI\Container $container;
     public License $license;
@@ -97,7 +96,6 @@ class StartUp
 
         $container = $containerBuilder->build();
         $this->config = $container->get(Config::class);;
-        $this->eloquent = Eloquent::getInstance();
         $this->container = $container;
 
         if ($this->requirements() && $this->coreRequirements()) {
