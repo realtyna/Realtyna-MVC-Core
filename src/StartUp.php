@@ -9,6 +9,8 @@ use Realtyna\MvcCore\Exception\InvalidCallbackException;
 use ReflectionMethod;
 use DI;
 
+use function Symfony\Component\Translation\t;
+
 class StartUp
 {
 
@@ -24,11 +26,12 @@ class StartUp
     public array $localizeScripts = [];
     public array $apis = [];
     public array $settings = [];
+    public array $notices = [];
     public View $view;
     public Validator $validator;
-    public ?Eloquent $eloquent;
     public Phinx $phinx;
     public DI\Container $container;
+    public License $license;
 
 
     public function init()
@@ -67,6 +70,10 @@ class StartUp
     {
     }
 
+    public function requirements(): bool
+    {
+        return true;
+    }
 
     /**
      * @throws InvalidCallbackException
@@ -75,6 +82,10 @@ class StartUp
      */
     public function __construct(Config $config)
     {
+
+        if (!function_exists('is_plugin_active')) {
+            include_once(ABSPATH . 'wp-admin/includes/plugin.php');
+        }
 
         $containerBuilder = new ContainerBuilder();
         $containerBuilder->useAutowiring(true);
@@ -85,25 +96,32 @@ class StartUp
 
         $container = $containerBuilder->build();
         $this->config = $container->get(Config::class);;
-        $this->eloquent = Eloquent::getInstance();
         $this->container = $container;
 
-        $this->init();
-        if (is_admin()) {
-            $this->onAdmin();
+        if ($this->requirements() && $this->coreRequirements()) {
+            $this->init();
+            if (is_admin()) {
+                $this->onAdmin();
+            }
+
+            $this->addAction('after_setup_theme', [$this, 'loadCarbon']);
+            $this->settings();
+            $this->registerSettings();
+
+            $this->api();
+            $this->onUpdate();
+            $this->registerAPIs();
+            $this->components();
+            $this->registerComponents();
+            $this->registerAssets();
+            $this->registerHooks();
+
+        } else {
+            $error = '<p><strong>' . $config->get('plugin.name') . '</strong> did not start. Check errors.</p>';
+            $this->addNotice($error);
         }
-        $this->settings();
 
-        $this->addAction('after_setup_theme', [$this, 'loadCarbon']);
-
-        $this->api();
-        $this->onUpdate();
-        $this->registerAPIs();
-        $this->components();
-        $this->registerSettings();
-        $this->registerComponents();
-        $this->registerAssets();
-        $this->registerHooks();
+        $this->registerNotices();
     }
 
 
@@ -190,7 +208,7 @@ class StartUp
      * @return void
      * @since 0.0.1
      */
-    public function addComponent(Component $component): void
+    public function addComponent($component): void
     {
         $this->components [] = $component;
     }
@@ -200,7 +218,7 @@ class StartUp
      * @param $class
      * @return void
      */
-    public function addSetting(Setting $class)
+    public function addSetting($class)
     {
         $this->settings [] = $class;
     }
@@ -444,6 +462,37 @@ class StartUp
         }
     }
 
+
+    public function addNotice(string $message, string $type = 'error', bool $isDismissible = false)
+    {
+        $this->notices[] = [
+            'type' => $type,
+            'message' => $message,
+            'isDismissible' => $isDismissible,
+        ];
+    }
+
+    public function registerNotices()
+    {
+        foreach ($this->notices as $notice) {
+            add_action('admin_notices', function () use ($notice) {
+                $extraClass = '';
+                $type = $notice['type'];
+                $message = $notice['message'];
+                if ($notice['isDismissible']) {
+                    $extraClass .= 'is-dismissible';
+                }
+                $html = "
+                    <div class=\"notice notice-$type $extraClass\">
+                        $message
+                    </div>
+                    ";
+
+                echo $html;
+            });
+        }
+    }
+
     /**
      * @return void
      * @since 0.0.1
@@ -474,13 +523,11 @@ class StartUp
             foreach ($baseRoutes as $baseRoute => $classes) {
                 foreach ($classes as $class => $callbacks) {
                     foreach ($callbacks as $callback) {
-
-                        $class = $this->container->make(is_object($class) ? get_class($class) : $class , [
+                        $class = $this->container->make(is_object($class) ? get_class($class) : $class, [
                             'version' => $version,
                             'baseRoute' => $baseRoute
                         ]);
                         $this->addAction('rest_api_init', [$class, $callback]);
-                        
                     }
                 }
             }
@@ -504,8 +551,8 @@ class StartUp
 
     public function registerSettings()
     {
-        foreach ($this->settings as $setting){
-            add_action('carbon_fields_register_fields', [$setting, 'registerPluginOptions']);
+        foreach ($this->settings as $setting) {
+            add_action('carbon_fields_register_fields', [$this->container->get($setting), 'registerPluginOptions']);
         }
     }
 
@@ -526,8 +573,54 @@ class StartUp
      * Loads Carbon fields
      * @return void
      */
-    public function loadCarbon(){
+    public function loadCarbon()
+    {
         \Carbon_Fields\Carbon_Fields::boot();
+    }
+
+    /**
+     * Generate hash based on domain name
+     * @param $input
+     * @param $length
+     * @return false|string
+     */
+    private function generateUniqueHash($input, $length = 30)
+    {
+        // Create a raw binary sha256 hash and base64 encode it.
+        $hash_base64 = base64_encode(hash('sha256', $input, true));
+        // Replace non-urlsafe chars to make the string urlsafe.
+        $hash_urlsafe = strtr($hash_base64, '+/', '-_');
+        // Trim base64 padding characters from the end.
+        $hash_urlsafe = rtrim($hash_urlsafe, '=');
+        // Shorten the string before returning.
+        return substr($hash_urlsafe, 0, $length);
+    }
+
+
+    private function coreRequirements(): bool
+    {
+        $valid = true;
+        if (!extension_loaded('pdo_mysql')) {
+            $html = '<p><strong>pdo_mysql</strong> extension is not installed. ask your host administrator to install it.</p>';
+            $this->addNotice($html, 'error');
+            $valid = false;
+        }
+
+        if (!defined('REALTYNA_JWT_SECRET')) {
+            $html = '<p>
+                    <strong>REALTYNA_JWT_SECRET</strong> is not defined in <strong>wp-config.php</strong>.
+                    We will define a token for you but keep it in mind for better security you need 
+                    to define it in <strong>wp-config.php</strong> like so:
+<pre>
+define("REALTYNA_JWT_SECRET", "YOUR RANDOM SECRET TOKEN")                    
+</pre>
+                    (Token can be anything, example: ' . bin2hex(random_bytes(18)) . ')
+                </p>';
+            $this->addNotice($html, 'error', true);
+            define('REALTYNA_JWT_SECRET', $this->generateUniqueHash($_SERVER['SERVER_NAME'], 50));
+        }
+
+        return $valid;
     }
 
 }

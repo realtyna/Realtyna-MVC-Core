@@ -3,12 +3,16 @@
 namespace Realtyna\MvcCore;
 
 use Illuminate\Database\Eloquent\Model as BaseModel;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Realtyna\MvcCore\Exception\ModelApiException;
+use Realtyna\MvcCore\Facades\DB;
 use WP_REST_Request;
 
 class Model extends BaseModel
 {
+
+    public $timestamps = false;
 
     protected $guarded = [];
 
@@ -140,5 +144,28 @@ class Model extends BaseModel
             return collect($collection);
         }
         return (new static())->fill($data);
+    }
+
+    /**
+     * Get the database connection for the model.
+     *
+     * @return false|Database\Connection
+     */
+    public function getConnection()
+    {
+        return DB::getFacadeRoot();
+    }
+    /**
+     * Get a new query builder instance for the connection.
+     *
+     * @return Builder
+     */
+    protected function newBaseQueryBuilder(): Builder
+    {
+        $connection = $this->getConnection();
+
+        return new Builder(
+            $connection, $connection->getQueryGrammar(), $connection->getPostProcessor()
+        );
     }
 }

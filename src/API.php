@@ -25,7 +25,7 @@ class API
         $this->validator = $main->container->get(Validator::class);
         $this->auth = $main->container->get(Auth::class);
         $requested_url = sanitize_url($_SERVER['REQUEST_URI']);
-        if (strpos($requested_url, '/'.$this->baseRoute.'/')){
+        if (strpos($requested_url, '/' . $this->baseRoute . '/')) {
             add_filter('determine_current_user', [$this, 'determineCurrentUser']);
         }
     }
@@ -45,7 +45,7 @@ class API
         $wantedRoute = str_replace($rest_api_slug, '', $requested_url);
         $wantedRoute = ltrim($wantedRoute, '/');
         $wantedRoute = rtrim($wantedRoute, '/');
-
+        $wantedRoute = strtok($wantedRoute, '?');
 
         if ($wantedRoute == '' || in_array($wantedRoute, $this->publicRoutes)) {
             return $user;
@@ -59,7 +59,11 @@ class API
         }
 
         if (!$auth_header) {
-            $this->returnUnauthenticatedResponse();
+            $response = [
+                'message' => 'Unauthenticated.'
+            ];
+            wp_send_json(new \WP_REST_Response($response, 403), 403);
+            exit();
         }
 
 
@@ -72,17 +76,26 @@ class API
                 return $user->ID;
             }
         } catch (\Exception $e) {
-            $this->returnUnauthenticatedResponse();
+            $response = [
+                'message' => 'Unauthenticated.'
+            ];
+            wp_send_json(new \WP_REST_Response($response, 403), 403);
+            exit();
         }
-        $this->returnUnauthenticatedResponse();
-        return false;
+        $response = [
+            'message' => 'Unauthenticated.'
+        ];
+        wp_send_json(new \WP_REST_Response($response, 403), 403);
+        exit();
     }
 
-    public function sendResponse($success, $data, $statusCode)
+    public function response($success, $data, $statusCode): \WP_REST_Response
     {
-        $response = new APIResponse($success, $data, $statusCode);
-        wp_send_json($response, $statusCode);
-        exit();
+        $response = [
+            'success' => $success,
+            'data' => $data
+        ];
+        return new \WP_REST_Response($response, $statusCode);
     }
 
     protected function returnValidationErrorMessages($data)
@@ -91,13 +104,23 @@ class API
             'message' => __('One or more of parameters was not valid!'),
             'errors' => $data
         ];
-        $this->sendResponse(false, $data, 400);
+        return $this->response(false, $data, 400);
     }
 
-    protected function returnUnauthenticatedResponse()
+
+    /**
+     * @param $request
+     * @return array
+     */
+    public function requestHandler(\WP_REST_Request $request): array
     {
-        $this->sendResponse(false, [
-            'message' => 'Unauthenticated.'
-        ], 403);
+        return array_merge(
+            $request->get_params(),
+            json_decode($request->get_body(), true) ?
+                json_decode($request->get_body(), true) : [],
+            $request->get_body_params() ? $request->get_body_params() : [],
+            $request->get_json_params() ? $request->get_json_params() : []
+        );
     }
+
 }
