@@ -99,6 +99,7 @@ class StartUp
         $this->container = $container;
 
         if ($this->requirements() && $this->coreRequirements()) {
+			require_once __DIR__ . '/../libraries/action-scheduler/action-scheduler.php';
             $this->init();
             if (is_admin()) {
                 $this->onAdmin();

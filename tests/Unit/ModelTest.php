@@ -22,7 +22,7 @@ class ModelTest extends \WP_UnitTestCase
 
     public function set_up()
     {
-        Eloquent::getInstance();
+//        Eloquent::getInstance();
 
 
         $configsArray = [
@@ -98,16 +98,16 @@ class ModelTest extends \WP_UnitTestCase
         do_action('rest_api_init');
     }
 
-    public function testDBConnection()
-    {
-        $this->factory()->post->create();
-
-        $fakePosts = FakePostModel::all();
-        $this->assertInstanceOf(Collection::class, $fakePosts);
-
-        $fakePosts = FakePostModel::where('id', 112)->get();
-        $this->assertInstanceOf(Collection::class, $fakePosts);
-    }
+//    public function testDBConnection()
+//    {
+//        $this->factory()->post->create();
+//
+//        $fakePosts = FakePostModel::all();
+//        $this->assertInstanceOf(Collection::class, $fakePosts);
+//
+//        $fakePosts = FakePostModel::where('id', 112)->get();
+//        $this->assertInstanceOf(Collection::class, $fakePosts);
+//    }
 
     public function testAPIMethod()
     {

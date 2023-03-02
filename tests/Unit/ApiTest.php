@@ -35,7 +35,7 @@ class ApiTest extends \WP_UnitTestCase
 
         $this->assertEquals('v4', $API->version);
         $this->assertEquals('user', $API->baseRoute);
-        $this->assertEquals('home-valuation', $API->namespace);
+        $this->assertEquals('realtyna/home-valuation', $API->namespace);
     }
 
 }
