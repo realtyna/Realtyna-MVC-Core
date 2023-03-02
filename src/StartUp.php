@@ -82,7 +82,6 @@ class StartUp
      */
     public function __construct(Config $config)
     {
-
         if (!function_exists('is_plugin_active')) {
             include_once(ABSPATH . 'wp-admin/includes/plugin.php');
         }
@@ -99,16 +98,15 @@ class StartUp
         $this->container = $container;
 
         if ($this->requirements() && $this->coreRequirements()) {
-			require_once __DIR__ . '/../libraries/action-scheduler/action-scheduler.php';
+            require_once __DIR__ . '/../libraries/action-scheduler/action-scheduler.php';
+            $this->registerListeners();
             $this->init();
             if (is_admin()) {
                 $this->onAdmin();
             }
-
             $this->addAction('after_setup_theme', [$this, 'loadCarbon']);
             $this->settings();
             $this->registerSettings();
-
             $this->api();
             $this->onUpdate();
             $this->registerAPIs();
@@ -116,7 +114,6 @@ class StartUp
             $this->registerComponents();
             $this->registerAssets();
             $this->registerHooks();
-
         } else {
             $error = '<p><strong>' . $config->get('plugin.name') . '</strong> did not start. Check errors.</p>';
             $this->addNotice($error);
@@ -125,6 +122,21 @@ class StartUp
         $this->registerNotices();
     }
 
+
+    public function registerListeners()
+    {
+        $listeners = $this->listeners();
+
+        foreach ($listeners as $listener) {
+            new $listener();
+        }
+    }
+
+
+    public function listeners(): array
+    {
+        return [];
+    }
 
     /**
      * @param string $hook
@@ -623,5 +635,6 @@ define("REALTYNA_JWT_SECRET", "YOUR RANDOM SECRET TOKEN")
 
         return $valid;
     }
+
 
 }
