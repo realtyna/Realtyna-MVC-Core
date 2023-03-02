@@ -98,7 +98,7 @@ class StartUp
         $this->container = $container;
 
         if ($this->requirements() && $this->coreRequirements()) {
-            require_once __DIR__ . '/../libraries/action-scheduler/action-scheduler.php';
+            require_once __DIR__ . '/../libraries/action-scheduler-woocommerce/action-scheduler.php';
             $this->registerListeners();
             $this->init();
             if (is_admin()) {
