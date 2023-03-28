@@ -19,7 +19,7 @@ class Event
         $event = $reflector->newInstanceArgs($args);
         self::$event = [$event];
 
-        add_action('init', [self::class, 'schedule']);
+        add_action('shutdown', [self::class, 'schedule']);
     }
 
     public static function schedule(){
