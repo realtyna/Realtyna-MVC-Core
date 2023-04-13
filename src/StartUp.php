@@ -79,6 +79,7 @@ class StartUp
      * @throws InvalidCallbackException
      * @throws DependencyException
      * @throws NotFoundException
+     * @throws \Exception
      */
     public function __construct(Config $config)
     {
@@ -94,6 +95,7 @@ class StartUp
         ]);
 
         $container = $containerBuilder->build();
+        Container::setContainer($container);
         $this->config = $container->get(Config::class);;
         $this->container = $container;
 
