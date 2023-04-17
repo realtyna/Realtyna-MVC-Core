@@ -5,11 +5,13 @@ namespace Realtyna\MvcCore;
 use DI\ContainerBuilder;
 use DI\DependencyException;
 use DI\NotFoundException;
+use Monolog\Handler\FirePHPHandler;
+use \Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 use Realtyna\MvcCore\Exception\InvalidCallbackException;
+use Realtyna\MvcCore\Logger\Processors\IntrospectionProcessor;
 use ReflectionMethod;
 use DI;
-
-use function Symfony\Component\Translation\t;
 
 class StartUp
 {
@@ -34,6 +36,10 @@ class StartUp
     public License $license;
 
 
+    /**
+     * first codes that will run when plugin is started
+     * @return void
+     */
     public function init()
     {
     }
@@ -83,29 +89,35 @@ class StartUp
      */
     public function __construct(Config $config)
     {
+        $this->config = $config;
+
+        // need this file for requirements check
+        // for example check if WPL is installed
         if (!function_exists('is_plugin_active')) {
             include_once(ABSPATH . 'wp-admin/includes/plugin.php');
         }
 
-        $containerBuilder = new ContainerBuilder();
-        $containerBuilder->useAutowiring(true);
-        $containerBuilder->useAnnotations(true);
-        $containerBuilder->addDefinitions([
-            Config::class => $config,
-        ]);
+        //load Container
+        $this->loadContainer();
 
-        $container = $containerBuilder->build();
-        Container::setContainer($container);
-        $this->config = $container->get(Config::class);;
-        $this->container = $container;
+        //load Logger
+        $this->loadLogger();
 
+
+        // if requirements was not met do not start the plugin
         if ($this->requirements() && $this->coreRequirements()) {
+            //load action scheduler
             require_once __DIR__ . '/../libraries/action-scheduler-woocommerce/action-scheduler.php';
+
+            //need to register Listeners before everything
             $this->registerListeners();
+
             $this->init();
             if (is_admin()) {
                 $this->onAdmin();
             }
+
+            //load Carbon for setting pages
             $this->addAction('after_setup_theme', [$this, 'loadCarbon']);
             $this->settings();
             $this->registerSettings();
@@ -639,4 +651,51 @@ define("REALTYNA_JWT_SECRET", "YOUR RANDOM SECRET TOKEN")
     }
 
 
+    /**
+     * Try to find Log class in plugin then register logger
+     * into it's static property
+     * @return void
+     */
+    private function loadLogger(): void{
+        $logClass = '\Realtyna\\' . $this->config->get('namespace') . '\\Boot\\Log';
+        if(class_exists($logClass)){
+            //load logger
+            $logger = new Logger($this->config->get('plugin.name'));
+            $logPath = $this->config->get('path.log') ?? $this->config->get('path.plugin_dir') . '/log/logger.log';
+            $logger->pushHandler(new StreamHandler($logPath, Logger::DEBUG));
+            $logger->pushHandler(new FirePHPHandler());
+
+            $logger->pushProcessor(new \Monolog\Processor\WebProcessor());
+            $logger->pushProcessor(new IntrospectionProcessor());
+
+            call_user_func($logClass .'::setLogger', $logger);
+        }
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    private function initContainer(): void{
+        $containerBuilder = new ContainerBuilder();
+        $containerBuilder->useAutowiring(true);
+        $containerBuilder->useAnnotations(true);
+        $containerBuilder->addDefinitions([
+            Config::class => $this->config,
+        ]);
+        $container = $containerBuilder->build();
+        $this->container = $container;
+    }
+
+    /**
+     * Try to find Container class in plugin then register container
+     * into it's static property
+     * @return void
+     */
+    private function loadContainer():void{
+        $containerClass = '\Realtyna\\' . $this->config->get('namespace') . '\\Boot\\Container';
+        if(class_exists($containerClass)){
+            call_user_func($containerClass .'::setContainer', $this->container);
+        }
+    }
 }
