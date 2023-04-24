@@ -97,6 +97,7 @@ class StartUp
             include_once(ABSPATH . 'wp-admin/includes/plugin.php');
         }
 
+        $this->initContainer();
         //load Container
         $this->loadContainer();
 
