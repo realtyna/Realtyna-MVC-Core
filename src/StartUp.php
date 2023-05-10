@@ -660,16 +660,8 @@ define("REALTYNA_JWT_SECRET", "YOUR RANDOM SECRET TOKEN")
     private function loadLogger(): void{
         $logClass = '\Realtyna\\' . $this->config->get('namespace') . '\\Boot\\Log';
         if(class_exists($logClass)){
-            //load logger
-            $logger = new Logger($this->config->get('plugin.name'));
-            $logPath = $this->config->get('path.log') ?? $this->config->get('path.plugin_dir') . '/log/logger.log';
-            $logger->pushHandler(new StreamHandler($logPath, Logger::DEBUG));
-            $logger->pushHandler(new FirePHPHandler());
-
-            $logger->pushProcessor(new \Monolog\Processor\WebProcessor());
-            $logger->pushProcessor(new IntrospectionProcessor());
-
-            call_user_func($logClass .'::setLogger', $logger);
+            $logClass::$main = $this;
+            call_user_func($logClass .'::getInstance');
         }
     }
 
