@@ -59,16 +59,9 @@ class API
         }
 
         if (!$auth_header) {
-            $response = [
-                'message' => 'Unauthenticated.'
-            ];
-            wp_send_json(new \WP_REST_Response($response, 403), 403);
-            exit();
+            return $user;
         }
-
-
         $token = str_replace('Bearer ', '', $auth_header);
-
         try {
             $user = $this->auth->getUser($token);
 
@@ -76,17 +69,9 @@ class API
                 return $user->ID;
             }
         } catch (\Exception $e) {
-            $response = [
-                'message' => 'Unauthenticated.'
-            ];
-            wp_send_json(new \WP_REST_Response($response, 403), 403);
-            exit();
+           return $user;
         }
-        $response = [
-            'message' => 'Unauthenticated.'
-        ];
-        wp_send_json(new \WP_REST_Response($response, 403), 403);
-        exit();
+        return $user;
     }
 
     public function response($success, $data, $statusCode): \WP_REST_Response
