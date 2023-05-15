@@ -197,6 +197,12 @@ class StartUp
         if (!$reflection->isPublic()) {
             throw new InvalidCallbackException("Called method is not public.");
         }
+
+        if (!$reflection->isStatic() && !is_object($callback[0])) {
+            $callback[0] = $this->container->get($callback[0]);
+            return $callback;
+        }
+        return $callback;
     }
 
 
@@ -211,7 +217,7 @@ class StartUp
      */
     public function addAction(string $hook, array $callback, int $priority = 10, int $accepted_args = 1)
     {
-        $this->validateCallback($callback);
+        $callback = $this->validateCallback($callback);
         $this->actions[] = $this->getHook($hook, $callback, $priority, $accepted_args);
     }
 
@@ -227,7 +233,7 @@ class StartUp
      */
     public function addFilter(string $hook, array $callback, int $priority = 10, int $accepted_args = 1)
     {
-        $this->validateCallback($callback);
+        $callback = $this->validateCallback($callback);
         $this->filters[] = $this->getHook($hook, $callback, $priority, $accepted_args);
     }
 
