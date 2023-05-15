@@ -25,7 +25,7 @@ class API
         $this->validator = $main->container->get(Validator::class);
         $this->auth = $main->container->get(Auth::class);
         $requested_url = sanitize_url($_SERVER['REQUEST_URI']);
-        if (strpos($requested_url, '/' . $this->baseRoute . '/')) {
+        if (strpos($requested_url, '/' . $this->baseRoute)) {
             add_filter('determine_current_user', [$this, 'determineCurrentUser']);
         }
     }
