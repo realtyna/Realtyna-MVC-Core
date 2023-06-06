@@ -105,11 +105,14 @@ class StartUp
         $this->loadLogger();
 
 
+
+        // Check Realtyna JWT auth
+        add_filter('determine_current_user', [$this->container->get(Auth::class), 'determineCurrentUser']);
+
         // if requirements was not met do not start the plugin
         if ($this->requirements() && $this->coreRequirements()) {
             //load action scheduler
             require_once __DIR__ . '/../libraries/action-scheduler-woocommerce/action-scheduler.php';
-
             //need to register Listeners before everything
             $this->registerListeners();
 
@@ -663,11 +666,12 @@ define("REALTYNA_JWT_SECRET", "YOUR RANDOM SECRET TOKEN")
      * into it's static property
      * @return void
      */
-    private function loadLogger(): void{
+    private function loadLogger(): void
+    {
         $logClass = '\Realtyna\\' . $this->config->get('namespace') . '\\Boot\\Log';
-        if(class_exists($logClass)){
+        if (class_exists($logClass)) {
             $logClass::$main = $this;
-            call_user_func($logClass .'::getInstance');
+            call_user_func($logClass . '::getInstance');
         }
     }
 
@@ -675,12 +679,14 @@ define("REALTYNA_JWT_SECRET", "YOUR RANDOM SECRET TOKEN")
     /**
      * @throws \Exception
      */
-    private function initContainer(): void{
+    private function initContainer(): void
+    {
         $containerBuilder = new ContainerBuilder();
         $containerBuilder->useAutowiring(true);
         $containerBuilder->useAnnotations(true);
         $containerBuilder->addDefinitions([
             Config::class => $this->config,
+            StartUp::class => $this
         ]);
         $container = $containerBuilder->build();
         $this->container = $container;
@@ -691,10 +697,11 @@ define("REALTYNA_JWT_SECRET", "YOUR RANDOM SECRET TOKEN")
      * into it's static property
      * @return void
      */
-    private function loadContainer():void{
+    private function loadContainer(): void
+    {
         $containerClass = '\Realtyna\\' . $this->config->get('namespace') . '\\Boot\\Container';
-        if(class_exists($containerClass)){
-            call_user_func($containerClass .'::setContainer', $this->container);
+        if (class_exists($containerClass)) {
+            call_user_func($containerClass . '::setContainer', $this->container);
         }
     }
 }

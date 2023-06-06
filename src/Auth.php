@@ -96,4 +96,33 @@ class Auth
             return false;
         }
     }
+
+    public function determineCurrentUser($user)
+    {
+        if ( $user) {
+            return $user;
+        }
+        $auth_header = $_SERVER['HTTP_AUTHORIZATION'] ? sanitize_text_field($_SERVER['HTTP_AUTHORIZATION']) : false;
+        /* Double check for different auth header string (server dependent) */
+        if (!$auth_header) {
+            $auth_header = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ? sanitize_text_field(
+                $_SERVER['REDIRECT_HTTP_AUTHORIZATION']
+            ) : false;
+        }
+
+        if (!$auth_header) {
+            return $user;
+        }
+        $token = str_replace('Bearer ', '', $auth_header);
+        try {
+            $user = $this->getUser($token);
+
+            if ($user) {
+                return $user->ID;
+            }
+        } catch (\Exception $e) {
+            return $user;
+        }
+        return $user;
+    }
 }
