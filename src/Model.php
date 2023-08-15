@@ -155,6 +155,7 @@ class Model extends BaseModel
     {
         return DB::getFacadeRoot();
     }
+
     /**
      * Get a new query builder instance for the connection.
      *

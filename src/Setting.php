@@ -9,7 +9,7 @@ abstract class Setting
     public function __construct(StartUp $main)
     {
         $this->main = $main;
-
     }
+
     abstract public function registerPluginOptions();
 }

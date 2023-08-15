@@ -11,8 +11,8 @@ class APIResponse
 
     public function __construct(bool $success, $data, $statusCode)
     {
-        $this->success    = $success;
-        $this->data       = $data;
+        $this->success = $success;
+        $this->data = $data;
         $this->statusCode = $statusCode;
     }
 }

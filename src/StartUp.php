@@ -105,7 +105,6 @@ class StartUp
         $this->loadLogger();
 
 
-
         // Check Realtyna JWT auth
         add_filter('determine_current_user', [$this->container->get(Auth::class), 'determineCurrentUser']);
 
