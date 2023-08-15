@@ -10,7 +10,7 @@ class BufferedOutput extends Output
 
     public function doWrite($message, $newline)
     {
-        $this->buffer .= $message. ($newline? PHP_EOL: '');
+        $this->buffer .= $message . ($newline ? PHP_EOL : '');
     }
 
     public function getBuffer()

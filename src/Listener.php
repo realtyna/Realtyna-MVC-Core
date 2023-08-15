@@ -10,6 +10,7 @@ abstract class Listener
         add_action('realtyna_event_hook_' . $this->event(), [$this, 'handle']);
     }
 
-    abstract public function event():string;
+    abstract public function event(): string;
+
     abstract public function handle($args);
 }

@@ -21,6 +21,5 @@ class FakeAPICController
     public function register()
     {
         throw new Exception("API class created with version:$this->version and baseRoute:$this->baseRoute");
-
     }
 }

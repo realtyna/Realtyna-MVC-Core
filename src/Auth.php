@@ -99,7 +99,7 @@ class Auth
 
     public function determineCurrentUser($user)
     {
-        if ( $user) {
+        if ($user) {
             return $user;
         }
         $auth_header = $_SERVER['HTTP_AUTHORIZATION'] ? sanitize_text_field($_SERVER['HTTP_AUTHORIZATION']) : false;

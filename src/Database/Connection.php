@@ -404,7 +404,7 @@ class Connection implements ConnectionInterface
      */
     public function pretend(\Closure $callback)
     {
-       //
+        //
     }
 
     public function getPostProcessor()
@@ -432,7 +432,7 @@ class Connection implements ConnectionInterface
     /**
      * Return the last insert id
      *
-     * @param  string $args
+     * @param string $args
      *
      * @return int
      */

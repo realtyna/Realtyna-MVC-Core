@@ -5,6 +5,7 @@ namespace Realtyna\MvcCore\Logger\Processors;
 use Monolog\Logger;
 use Monolog\Processor\ProcessorInterface;
 use Psr\Log\LogLevel;
+
 class IntrospectionProcessor implements ProcessorInterface
 {
     /** @var int */
@@ -27,8 +28,8 @@ class IntrospectionProcessor implements ProcessorInterface
      */
     public function __construct($level = Logger::DEBUG, array $skipClassesPartials = [], int $skipStackFramesCount = 0)
     {
-        $this->level                = Logger::toMonologLevel($level);
-        $this->skipClassesPartials  = array_merge(['Monolog\\'], $skipClassesPartials);
+        $this->level = Logger::toMonologLevel($level);
+        $this->skipClassesPartials = array_merge(['Monolog\\'], $skipClassesPartials);
         $this->skipStackFramesCount = $skipStackFramesCount;
     }
 
@@ -75,9 +76,9 @@ class IntrospectionProcessor implements ProcessorInterface
         $record['extra'] = array_merge(
             $record['extra'],
             [
-                'file'     => $trace[$i]['file'] ?? null,
-                'line'     => $trace[$i]['line'] ?? null,
-                'class'    => $trace[$i + 1]['class'] ?? null,
+                'file' => $trace[$i]['file'] ?? null,
+                'line' => $trace[$i]['line'] ?? null,
+                'class' => $trace[$i + 1]['class'] ?? null,
                 'callType' => $trace[$i + 1]['type'] ?? null,
                 'function' => $trace[$i + 1]['function'] ?? null,
             ]
@@ -91,7 +92,7 @@ class IntrospectionProcessor implements ProcessorInterface
      */
     private function isTraceClassOrSkippedFunction(array $trace, int $index): bool
     {
-        if ( ! isset($trace[$index])) {
+        if (!isset($trace[$index])) {
             return false;
         }
 

@@ -10,7 +10,6 @@ class FakeClass
 
     private function TestMethod()
     {
-        
     }
 
 }

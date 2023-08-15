@@ -28,9 +28,11 @@ class SetupPluginCommands extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $helper    = $this->getHelper('question');
+        $helper = $this->getHelper('question');
         $pluginNameQuestion = new Question('What is your plugin name(For Example: Realtyna Home Valuation): ');
-        $pluginNamespaceQuestion = new Question('What is your plugin namespace(Insert CamelCase, for example: HomeValuation): ');
+        $pluginNamespaceQuestion = new Question(
+            'What is your plugin namespace(Insert CamelCase, for example: HomeValuation): '
+        );
         $apiNamespaceQuestion = new Question('What is your plugin API namespace(for example: home-valuation): ');
 
 
@@ -40,14 +42,14 @@ class SetupPluginCommands extends Command
             '',
         ]);
         $pluginName = $helper->ask($input, $output, $pluginNameQuestion);
-        while (!$pluginName){
+        while (!$pluginName) {
             $pluginName = $helper->ask($input, $output, $pluginNameQuestion);
         }
         $this->replaceInAllFiles('Base Structure Plugin', $pluginName);
 
 
         $pluginNamespace = $helper->ask($input, $output, $pluginNamespaceQuestion);
-        while (!$pluginNamespace){
+        while (!$pluginNamespace) {
             $pluginNamespace = $helper->ask($input, $output, $pluginNamespaceQuestion);
         }
         $this->replaceInAllFiles('MustRename', $pluginNamespace);
@@ -60,37 +62,40 @@ class SetupPluginCommands extends Command
 
 
         $apiNamespace = $helper->ask($input, $output, $apiNamespaceQuestion);
-        while (!$apiNamespace){
+        while (!$apiNamespace) {
             $apiNamespace = $helper->ask($input, $output, $apiNamespaceQuestion);
         }
-        $this->replaceInAllFiles("'namespace' => 'wpl'", "'namespace' => '".strtolower($apiNamespace)."'");
+        $this->replaceInAllFiles("'namespace' => 'wpl'", "'namespace' => '" . strtolower($apiNamespace) . "'");
 
         return Command::SUCCESS;
     }
 
 
-    function getDirContents($dir, $filter = '', &$results = array()) {
+    function getDirContents($dir, $filter = '', &$results = array())
+    {
         $files = scandir($dir);
 
-        foreach($files as $key => $value){
-            $path = realpath($dir.DIRECTORY_SEPARATOR.$value);
-            if ($value == 'vendor'){
+        foreach ($files as $key => $value) {
+            $path = realpath($dir . DIRECTORY_SEPARATOR . $value);
+            if ($value == 'vendor') {
                 continue;
             }
 
-            if ($value == '.git'){
+            if ($value == '.git') {
                 continue;
             }
 
-            if ($value == '.gitkeep'){
+            if ($value == '.gitkeep') {
                 continue;
             }
-            if(is_file($value) && !preg_match('/^.*\.(php)$/i', $value)){
+            if (is_file($value) && !preg_match('/^.*\.(php)$/i', $value)) {
                 continue;
             }
-            if(!is_dir($path)) {
-                if(empty($filter) || preg_match($filter, $path)) $results[] = $path;
-            } elseif($value != "." && $value != "..") {
+            if (!is_dir($path)) {
+                if (empty($filter) || preg_match($filter, $path)) {
+                    $results[] = $path;
+                }
+            } elseif ($value != "." && $value != "..") {
                 $this->getDirContents($path, $filter, $results);
             }
         }
@@ -98,13 +103,14 @@ class SetupPluginCommands extends Command
         return $results;
     }
 
-    public function replaceInAllFiles($serach, $replace){
+    public function replaceInAllFiles($serach, $replace)
+    {
         $path = realpath($this->path);
         $allFiles = $this->getDirContents($path);
 
-        foreach ($allFiles as $file){
-            $str=file_get_contents($file);
-            $str=str_replace($serach, $replace,$str);
+        foreach ($allFiles as $file) {
+            $str = file_get_contents($file);
+            $str = str_replace($serach, $replace, $str);
             file_put_contents($file, $str);
         }
     }

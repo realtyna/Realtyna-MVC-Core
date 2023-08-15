@@ -4,6 +4,7 @@ namespace Realtyna\MvcCore\Facades;
 
 use Illuminate\Support\Facades\Facade;
 use Realtyna\MvcCore\Database\Connection;
+
 /**
  * @method static \Illuminate\Database\Query\Builder table(string $table, string $as = null)
  * @method static \Illuminate\Database\Query\Expression raw($value)
