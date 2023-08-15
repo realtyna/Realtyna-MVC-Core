@@ -24,10 +24,8 @@ class Event
 
     public static function schedule()
     {
-        if (!as_has_scheduled_action(self::$hook)) {
-            $group = 'events';
-            as_enqueue_async_action(self::$hook, self::$event, $group);
-        }
+        $group = 'events';
+        as_enqueue_async_action(self::$hook, self::$event, $group);
     }
 
 }
