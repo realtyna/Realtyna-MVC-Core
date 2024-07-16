@@ -123,12 +123,12 @@ class StartUp
             //load Carbon for setting pages
             $this->addAction('after_setup_theme', [$this, 'loadCarbon']);
             $this->settings();
-            $this->registerSettings();
             $this->api();
             $this->onUpdate();
-            $this->registerAPIs();
             $this->components();
             $this->registerComponents();
+            $this->registerAPIs();
+            $this->registerSettings();
             $this->registerAssets();
             $this->registerHooks();
         } else {
